@@ -11,6 +11,9 @@ class Graph:
     self.adj_list = {node: dict() for node in self.nodes}
     self.create_grid()
     self.generateObstacle(traversability, cluster_agl)
+
+  def getDim(self):
+    return (self.row, self.col)
     
   def checkNeighbors(self, node, obstacle):
     neighbors = self.getAdjList(node)
@@ -94,7 +97,7 @@ class Graph:
       return cluster
     next = random.choice(available)
     cluster.append(next)
-    return self.generateCluster(dim_cluster, obstacle, next)
+    return self.generateCluster(dim_cluster, obstacle, next, cluster)
 
   def findStart(self, obstacle):
     temp = list(k for k in range(1,self.n +1) if k not in obstacle)
