@@ -94,7 +94,7 @@ class Graph:
     start = random.choice(start)
     while len(cluster) < dim_cluster:
       available = self.findAvailable(start, obstacle)
-      if len(available) == o:
+      if len(available) == 0:
         return
       start = random.choice(available)
       cluster.append(start)
