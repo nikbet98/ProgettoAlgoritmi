@@ -1,5 +1,4 @@
-from Grid import Grid
+from progettoASD import Graph
+graph = Graph(2,5,0.6,0)
 
-griglia = Grid(5,4,0.2,1)
-
-print(griglia.__str__())
+graph.print_adj_list()
