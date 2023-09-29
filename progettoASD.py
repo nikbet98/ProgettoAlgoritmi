@@ -82,25 +82,30 @@ class Graph:
         available.append(n)
     return available
   
-  def generateCluster(self, dim_cluster, obstacle):
-    cluster = list()
-    start = list()
+  def generateCluster(self, dim_cluster, obstacle, start, cluster):
+    if len(cluster) == dim_cluster:
+      return cluster
+    neighbors = self.adj_list[start]
+    available = list()
+    for n in neighbors:
+      if n not in cluster and self.checkNeighbors(n, obstacle):
+        available.append(n)
+    if len(available) == 0:
+      return cluster
+    next = random.choice(available)
+    cluster.append(next)
+    return self.generateCluster(dim_cluster, obstacle, next)
+
+  def findStart(self, obstacle):
     temp = list(k for k in range(1,self.n +1) if k not in obstacle)
+    available = list()
     for t in temp:
       if self.checkNeighbors(t,obstacle):
-        start.append(t)
-    if len(start) == 0:
-      return
-    start = random.choice(start)
-    while len(cluster) < dim_cluster:
-      available = self.findAvailable(start, obstacle)
-      if len(available) == 0:
-        return
-      start = random.choice(available)
-      cluster.append(start)
-    return cluster
-
-    
+        available.append(t)
+    if len(available) == 0:
+      return False
+    start = random.choice(available)
+    return start
 
   def generateObstacle(self, traversability, cluster_agl):
     obstacle = list()
@@ -114,8 +119,14 @@ class Graph:
     
     #generate cluster
     for i in range(n_cluster):
-      cluster = self.generateCluster(dim_cluster, obstacle)
-      for toAdd in cluster:
-        self.setAsObstacle(toAdd)
-
+      start = self.findStart(obstacle)
+      if not start:
+        break
+      else:
+        cluster = list()
+        cluster.append(start)
+        cluster = self.generateCluster(dim_cluster, obstacle, start, cluster)
+        obstacle.extend(cluster)
+    for o in obstacle:
+      self.setAsObstacle(o)
  
