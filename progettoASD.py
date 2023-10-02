@@ -1,5 +1,9 @@
-import math
 import random
+
+# costanti
+WEIGHT_CARDINAL_MOVES = 1
+WEIGHT_DIAGONAL_MOVES= 2
+
 
 # commit di prova
 # faccio un branch su dev
@@ -24,9 +28,8 @@ class Graph:
         return False
     return True
 
-
   def add_edge(self, node1, node2, weight=1):
-    self.adj_list[node1].update({node2: weight})
+      self.adj_list[node1].update({node2: weight})
 
   def delete_edge(self, node1, node2):
     #da una parte
@@ -49,30 +52,33 @@ class Graph:
       #aggiungi cardinali
       self.add_cardinal_edge(node)
 
-  def add_cardinal_edge(self, node):
-    resto_r = node % self.row
+  def checkCardinalNeighbor(self, node):
     resto_c = node % self.col
-    if resto_c != 1: #check per quello a dx
-      self.add_edge(node,node-1,1)
-    if node-self.col > 0: #check per quello sopra
-      self.add_edge(node, node-self.col,1)
-    if resto_c != 0: #check per quello a sx
-      self.add_edge(node,node+1,1)
-    if node+self.col <= self.n: #check per quello sotto
-      self.add_edge(node,node+self.col,1)
+    if resto_c != 1 or node-self.col > 0 or resto_c != 0 or node+self.col <= self.n:
+      return node
+    return None  
+
+  def checkDiagonalNeighbor(self, node):
+    resto_c = node % self.col
+    if (resto_c != 1 or resto_c != 0) and (node-self.col > 0 or node+self.col <= self.n):
+      return node
+    return None
+
+  def add_cardinal_edge(self, node):    
+    cardinalMoves = [-1,-self.col,+1,+self.col]
+
+    for i in range(len(cardinalMoves)):
+      neighbor = self.checkCardinalNeighbor(node+cardinalMoves[i])
+      if neighbor != None:
+        self.add_edge(node,neighbor,WEIGHT_CARDINAL_MOVES)
 
   def add_diagonal_edge(self,node):
-    resto_r = node % self.row
-    resto_c = node % self.col
-    w=2
-    if resto_c != 1 and node-self.col > 0:
-      self.add_edge(node, node-self.col-1,w)
-    if resto_c != 0 and node-self.col > 0:
-      self.add_edge(node, node-self.col+1,w)
-    if resto_c != 1 and node+self.col <= self.n:
-      self.add_edge(node, node+self.col-1,w)
-    if resto_c != 0 and node+self.col <= self.n:
-      self.add_edge(node, node+self.col+1,w)
+    diagonalMoves = [-self.col-1,-self.col+1,+self.col-1,+self.col+1]
+    
+    for i in range(len(diagonalMoves)):
+      neighbor = self.checkDiagonalNeighbor(node+diagonalMoves[i])
+      if neighbor != None:
+        self.add_edge(node,neighbor,WEIGHT_DIAGONAL_MOVES)
 
   def setAsObstacle(graph, node):
     neighbors = list(graph.adj_list[node].keys())
