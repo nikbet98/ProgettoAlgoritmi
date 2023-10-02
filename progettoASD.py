@@ -1,6 +1,7 @@
 import math
 import random
 
+# commit di prova
 class Graph:
   def __init__(self, r, c, traversability, cluster_agl):
     self.row = r
