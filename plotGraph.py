@@ -1,11 +1,10 @@
-import matplotlib.pyplot as plt
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def graphPlotter(graph):
 	row, col = graph.getDim()
 
-	n = row*col
+	size = row*col
 	data = np.ones((row, col))*255
 
 	for i in range(row):
