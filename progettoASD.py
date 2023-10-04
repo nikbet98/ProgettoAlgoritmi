@@ -1,24 +1,26 @@
 import random
 
-# costanti
-WEIGHT_CARDINAL_MOVES = 1
-WEIGHT_DIAGONAL_MOVES= 2
+"""
+Non è strano che un grafo sia caratterizzato da righe, colone, dimensione, etc?
+Non è più naturale pensare ada griglia?
+Proposte: GridGraph
+"""
+class gridGraph:
+  def __init__(self, row, col, traversability, cluster_agl):
+    self.row = row
+    self.col = col
+    self.size  = row*col
+    self.nodes = range(1,self.size+1)
 
+    self.adj_list = buildGridGraph(self, traversability, cluster_agl)
 
-# commit di prova
-# faccio un branch su dev
-class Graph:
-  def __init__(self, r, c, traversability, cluster_agl):
-    self.row = r
-    self.col = c
-    self.n = r*c
-    self.nodes = range(1,self.n+1)
-
-    self.adj_list = {node: dict() for node in self.nodes}
-    self.create_grid()
+  def buildGridGraph(self):
+    graph = {node: dict() for node in self.nodes}
+    self.makeGridGraph()
     self.generateObstacle(traversability, cluster_agl)
+    return graph
 
-  def getDim(self):
+  def getSize(self):
     return (self.row, self.col)
     
   def checkNeighbors(self, node, obstacle):
@@ -28,10 +30,11 @@ class Graph:
         return False
     return True
 
-  def add_edge(self, node1, node2, weight=1):
-      self.adj_list[node1].update({node2: weight})
 
-  def delete_edge(self, node1, node2):
+  def addEdge(self, node1, node2, weight=1):
+    self.adj_list[node1].update({node2: weight})
+
+  def deleteEdge(self, node1, node2):
     #da una parte
     self.adj_list[node1].pop(node2)
 
@@ -41,11 +44,12 @@ class Graph:
   def getAdjList(self, node):
     return self.adj_list[node]
 
-  def print_adj_list(self):
+  def __str__(self):
     for key in self.adj_list.keys():
-      print("node",key,": ", self.adj_list[key])
+      s
+      #print("node",key,": ", self.adj_list[key])
 
-  def create_grid(self):
+  def makeGridGraph(self):
     for node in self.nodes:
       #aggiungi diagonali
       self.add_diagonal_edge(node)
@@ -54,36 +58,32 @@ class Graph:
 
   def checkCardinalNeighbor(self, node):
     resto_c = node % self.col
-    if resto_c != 1 or node-self.col > 0 or resto_c != 0 or node+self.col <= self.n:
-      return node
-    return None  
-
-  def checkDiagonalNeighbor(self, node):
-    resto_c = node % self.col
-    if (resto_c != 1 or resto_c != 0) and (node-self.col > 0 or node+self.col <= self.n):
-      return node
-    return None
-
-  def add_cardinal_edge(self, node):    
-    cardinalMoves = [-1,-self.col,+1,+self.col]
-
-    for i in range(len(cardinalMoves)):
-      neighbor = self.checkCardinalNeighbor(node+cardinalMoves[i])
-      if neighbor != None:
-        self.add_edge(node,neighbor,WEIGHT_CARDINAL_MOVES)
+    if resto_c != 1: #check per quello a dx
+      self.addEdge(node,node-1,1)
+    if node-self.col > 0: #check per quello sopra
+      self.addEdge(node, node-self.col,1)
+    if resto_c != 0: #check per quello a sx
+      self.addEdge(node,node+1,1)
+    if node+self.col <= self.size: #check per quello sotto
+      self.addEdge(node,node+self.col,1)
 
   def add_diagonal_edge(self,node):
-    diagonalMoves = [-self.col-1,-self.col+1,+self.col-1,+self.col+1]
-    
-    for i in range(len(diagonalMoves)):
-      neighbor = self.checkDiagonalNeighbor(node+diagonalMoves[i])
-      if neighbor != None:
-        self.add_edge(node,neighbor,WEIGHT_DIAGONAL_MOVES)
+    resto_r = node % self.row
+    resto_c = node % self.col
+    w=2
+    if resto_c != 1 and node-self.col > 0:
+      self.addEdge(node, node-self.col-1,w)
+    if resto_c != 0 and node-self.col > 0:
+      self.addEdge(node, node-self.col+1,w)
+    if resto_c != 1 and node+self.col <= self.size:
+      self.addEdge(node, node+self.col-1,w)
+    if resto_c != 0 and node+self.col <= self.size:
+      self.addEdge(node, node+self.col+1,w)
 
   def setAsObstacle(graph, node):
     neighbors = list(graph.adj_list[node].keys())
     for idx in neighbors:
-      graph.delete_edge(node,idx)
+      graph.deleteEdge(node,idx)
 
   def findAvailable(self, node, obstacle):
     available=list()
@@ -108,7 +108,7 @@ class Graph:
     return self.generateCluster(dim_cluster, obstacle, next, cluster)
 
   def findStart(self, obstacle):
-    temp = list(k for k in range(1,self.n +1) if k not in obstacle)
+    temp = list(k for k in range(1,self.size +1) if k not in obstacle)
     available = list()
     for t in temp:
       if self.checkNeighbors(t,obstacle):
@@ -120,7 +120,7 @@ class Graph:
 
   def generateObstacle(self, traversability, cluster_agl):
     obstacle = list()
-    total_obstacle = round(self.n*(1-traversability))
+    total_obstacle = round(self.size*(1-traversability))
     if cluster_agl == 0:
       dim_cluster = 1
       n_cluster = total_obstacle
