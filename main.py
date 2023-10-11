@@ -1,9 +1,11 @@
 from gridGraph import GridGraph
 from plotGraph import graphPlotter
 
-graph = GridGraph(2,5,0.6,0)
+graph = GridGraph(10,5,0.6,0.2)
 
-#graph.print_adj_list()
-print(graph.__str__())
-# commento
+# stampo su terminale la griglia
+print(graph)
+
+# disegna il grafico
 graphPlotter(graph)
+

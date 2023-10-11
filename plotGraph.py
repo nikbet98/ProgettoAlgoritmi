@@ -2,15 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def graphPlotter(graph):
-	row, col = graph.getDim()
-
-	size = row*col
+	row, col = graph.get_dim()
 	data = np.ones((row, col))*255
 
 	for i in range(row):
 		for j in range(col):
 			node = (j+1) + i*col
-			if graph.getAdjList(node) == {}:
+			if graph.get_adj_list(node) == {}:
 				data[i,j] = 0
 	
 	fig, ax = plt.subplots()
