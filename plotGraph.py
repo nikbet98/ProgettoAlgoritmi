@@ -7,7 +7,7 @@ def graphPlotter(graph):
 
 	for i in range(row):
 		for j in range(col):
-			node = (j+1) + i*col
+			node = j + i*col
 			if graph.get_adj_list(node) == {}:
 				data[i,j] = 0
 	

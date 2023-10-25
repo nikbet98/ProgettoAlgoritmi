@@ -5,7 +5,7 @@ WEIGHT_CARDINAL_DIRECTION = 1
 WEIGHT_DIAGONAL_DIRECTION = 2
 
 class GridGraph:
-  def __init__(self, rows, cols, traversability_rate, obstacle_agglomeration_rate):
+  def __init__(self, rows, cols, obstacle_ratio, obstacle_agglomeration_ratio):
     import random
 
     """
@@ -14,10 +14,11 @@ class GridGraph:
     self.rows = rows
     self.cols = cols
     self.size = rows * cols
-    self.traversability_rate = traversability_rate
-    self.obstacle_agglomeration_rate = obstacle_agglomeration_rate
-    self.nodes = range(1, self.size + 1)
-    self.adj_list = {node: {} for node in self.nodes}
+    self.obstacle_ratio = obstacle_ratio
+
+    self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
+    self.nodes = range(0,self.size)
+    self.adj_list = [{} for node in self.nodes]
     self.generate_neighbors()
     self.generate_obstacles()
 
@@ -32,8 +33,8 @@ class GridGraph:
     """
     Connette il nodo specificato ai suoi nodi adiacenti nella griglia.
     """
-    row = (node - 1) // self.cols
-    col = (node - 1) % self.cols
+    row = (node) // self.cols
+    col = (node) % self.cols
 
       # Definisco le direzioni dei nodi
     directions = [
@@ -51,7 +52,7 @@ class GridGraph:
     for direction_row, direction_col in directions:
       new_row, new_col = row + direction_row, col + direction_col
       if 0 <= new_row < self.rows and 0 <= new_col < self.cols:
-        neighbor = new_row * self.cols + new_col + 1
+        neighbor = new_row * self.cols + new_col
         weight = WEIGHT_CARDINAL_DIRECTION
         if direction_row != 0 and direction_col != 0: # ci stiamo muovendo in diagonale
           weight = WEIGHT_DIAGONAL_DIRECTION
@@ -67,7 +68,7 @@ class GridGraph:
       self.set_as_obstacle(node)
 
   def calculate_num_obstacles(self):
-    return round(self.size * (1 - self.traversability_rate))
+    return round(self.size * (1 - self.obstacle_ratio))
 
   def build_obstacles(self, num_obstacles):
     """
@@ -84,9 +85,9 @@ class GridGraph:
     return obstacles
 
   def calculate_cluster_size(self, num_obstacles):
-    if self.obstacle_agglomeration_rate == 0:
+    if self.obstacle_agglomeration_ratio == 0:
       return 1
-    return round(num_obstacles * self.obstacle_agglomeration_rate)
+    return round(num_obstacles * self.obstacle_agglomeration_ratio)
 
   def calculate_num_clusters(self, num_obstacles, cluster_size):
     if cluster_size == 1:
@@ -130,7 +131,7 @@ class GridGraph:
       self.delete_edge(node, neighbor)
 
   def add_edge(self, node1, node2, weight=1):
-    self.adj_list.setdefault(node1, {})[node2] = weight
+    self.adj_list[node1][node2] = weight
 
   def delete_edge(self, node1, node2):
     self.adj_list[node1].pop(node2)
@@ -141,8 +142,8 @@ class GridGraph:
 
   def __str__(self):
     dict_string = ""
-    for key, value in self.adj_list.items():
-      dict_string += "node " + str(key) + ": " + str(self.adj_list[key]) + "\n"
+    for idx in self.nodes:
+      dict_string += "node " + str(idx) + ": " + str(self.adj_list[idx]) + "\n"
     return dict_string
 
   def get_dim(self):
@@ -161,3 +162,6 @@ class GridGraph:
         traversable_node.append(node)
     return traversable_nodes
     return self.adj_list.filter(lambda node: self.get_adj_list(node) != {})
+
+  def get_edge_weight(node1, node2):
+    return self.adj_list[node1][node2]
