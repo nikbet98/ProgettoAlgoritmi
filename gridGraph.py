@@ -154,14 +154,6 @@ class GridGraph:
   
   def get_obstacles(self):
     return self.nodes.filter(lambda node: self.get_adj_list(node) == {})
-  
-  def get_traversable_nodes(self):
-    traversable_nodes = {}
-    for node in self.nodes:
-      if self.get_adj_list(node) != {}:
-        traversable_node.append(node)
-    return traversable_nodes
-    return self.adj_list.filter(lambda node: self.get_adj_list(node) != {})
-
-  def get_edge_weight(node1, node2):
+ 
+  def get_edge_weight(self, node1, node2):
     return self.adj_list[node1][node2]

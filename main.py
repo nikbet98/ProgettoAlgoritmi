@@ -1,7 +1,9 @@
 import pickle
 from gridGraph import GridGraph
 from plotGraph import graphPlotter
-from utils import dijkstra
+from compito2 import ReachGoal, ReachGoal_variant
+from heuristic import *
+from state import State
 
 graph = GridGraph(3,6,0.6,0.2)
 
@@ -21,8 +23,10 @@ with open('graph.pickle', 'wb') as f:
 # f.close()
 
 # print(graph)
+h = HeuristicRelaxPath(graph,17)
 
-dijkstra(graph, 0)
-
+prova = ReachGoal(graph, [], State(0,0),17, 100, h)
+print(prova)
 # disegna il grafico
 graphPlotter(graph)
+
