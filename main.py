@@ -8,7 +8,11 @@ from state import State
 goal = 8
 initial_state = State(0, 0)
 max_time = 100
+robot1 = [1,2,3]
+robot2 = [6,4,7]
 paths = []
+paths.append(robot1)
+paths.append(robot2)
 
 graph = GridGraph(rows=3,cols= 3,traversability_ratio=1,obstacle_agglomeration_ratio=1)
 
@@ -34,7 +38,9 @@ h = HeuristicRelaxPath(graph, goal)
 for i in range(0, 9):
     print("nodo = ",i,"h = ",h(i))
 
-prova = ReachGoal_variant(graph, paths, initial_state, goal, max_time, h)
+prova = ReachGoal(graph, paths, initial_state, goal, max_time, h)
+print("print del risultato /n")
 print(prova)
+
 # disegna il grafico
 graphPlotter(graph)

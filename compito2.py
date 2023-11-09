@@ -107,8 +107,14 @@ def ReachGoal_variant(grid, paths, init, goal, max_time, heuristic):
 
 def is_collision_free(current, next_node, paths, time, cols):
     for path in paths:
-        p = path[time]
-        p_next = path[time+1]
+        path_lenght = len(path)-1
+        # controllo se il è già arrivato alla fine l'altro agente
+        if(path_lenght < time or path_lenght < time + 1): 
+            p = path[-1]
+            p_next = p
+        else:
+            p = path[time]
+            p_next = path[time+1]
 
         # incroci semplici
         if p_next == next_node:
