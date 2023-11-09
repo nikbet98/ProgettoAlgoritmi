@@ -5,7 +5,12 @@ from compito2 import ReachGoal, ReachGoal_variant
 from heuristic import *
 from state import State
 
-graph = GridGraph(3,6,0.6,0.2)
+goal = 8
+initial_state = State(0, 0)
+max_time = 100
+paths = []
+
+graph = GridGraph(rows=3,cols= 3,traversability_ratio=1,obstacle_agglomeration_ratio=1)
 
 # stampo su terminale la griglia
 print(graph)
@@ -23,10 +28,13 @@ with open('graph.pickle', 'wb') as f:
 # f.close()
 
 # print(graph)
-h = HeuristicRelaxPath(graph,17)
+h = HeuristicRelaxPath(graph, goal)
 
-prova = ReachGoal(graph, [], State(0,0),17, 100, h)
+#h = DiagonalDistance(graph, goal,1,2)
+for i in range(0, 9):
+    print("nodo = ",i,"h = ",h(i))
+
+prova = ReachGoal_variant(graph, paths, initial_state, goal, max_time, h)
 print(prova)
 # disegna il grafico
 graphPlotter(graph)
-

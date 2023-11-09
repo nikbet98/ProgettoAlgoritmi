@@ -27,11 +27,11 @@ def get_coordinates(node,col):
 
 # ---------------------------------- Euristiche ---------------------------------- #
 class DiagonalDistance(Heuristic):
-    def __init__(self, grid, goal,D,D2):
+    def __init__(self, grid, goal,weigh_cardinal_direction, weight_diagonal_direction):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
-        self.D = D
-        self.D2 = D2
+        self.D = weigh_cardinal_direction
+        self.D2 = weight_diagonal_direction
         self.goal = goal
 
     def estimate(self, init):
@@ -166,6 +166,11 @@ class HeuristicRelaxPath(Heuristic):
         self.__setattr__('distances',distances)
         self.__setattr__('predecessors',predecessors)
     
+    def return_path(self,starting_node, end_node, path=list()):
+        while starting_node != end_node:
+            path.append(starting_node)
+            self.return_path(self.predecessors[starting_node], end_node, path)
+        return path
     
     def __call__(self, node):
         return self.distances[node]

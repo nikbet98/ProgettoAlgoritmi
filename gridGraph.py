@@ -5,7 +5,7 @@ WEIGHT_CARDINAL_DIRECTION = 1
 WEIGHT_DIAGONAL_DIRECTION = 2
 
 class GridGraph:
-  def __init__(self, rows, cols, obstacle_ratio, obstacle_agglomeration_ratio):
+  def __init__(self, rows, cols, traversability_ratio, obstacle_agglomeration_ratio):
     import random
 
     """
@@ -14,7 +14,7 @@ class GridGraph:
     self.rows = rows
     self.cols = cols
     self.size = rows * cols
-    self.obstacle_ratio = obstacle_ratio
+    self.traversability_ratio = traversability_ratio
 
     self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
     self.nodes = range(0,self.size)
@@ -63,12 +63,13 @@ class GridGraph:
     Genera gli ostacoli nella griglia in base alla percentuale di attraversabilità e di agglomerazione degli ostacoli.
     """
     num_obstacles = self.calculate_num_obstacles()
-    obstacles = self.build_obstacles(num_obstacles)
-    for node in obstacles:
-      self.set_as_obstacle(node)
+    if num_obstacles != 0: # se il numero di ostacoli è nullo non tentare di generare gli ostacoli
+      obstacles = self.build_obstacles(num_obstacles)
+      for node in obstacles:
+        self.set_as_obstacle(node)
 
   def calculate_num_obstacles(self):
-    return round(self.size * (1 - self.obstacle_ratio))
+    return round(self.size * (1 - self.traversability_ratio))
 
   def build_obstacles(self, num_obstacles):
     """
