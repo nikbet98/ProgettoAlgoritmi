@@ -28,8 +28,10 @@ def ReachGoal(grid, paths, init, goal, max_time,heuristic):
     open = PriorityQueue(init, f=f_score)
     closed = list()
 
-    while open and time < max_time: # non possiamo spostare l'if a riga 31 nel while? while open.is_empty() and time < maximum_time:
+    while open: # non possiamo spostare l'if a riga 31 nel while? while open.is_empty() and time < maximum_time:
         current_state = open.pop()
+        if(current_state.time > max_time):
+            return None
         #test
         print("current state =",current_state.node,"time =",current_state.time)
         #test
@@ -59,10 +61,6 @@ def ReachGoal(grid, paths, init, goal, max_time,heuristic):
         string_closed_list = ', '.join(f"< ({state.node},{state.time}),{f_score(state)}>" for state in closed)
         print(string_closed_list)
         print("_______________________")
-
-        time += 1
-
-
     return None
 
 def ReachGoal_variant(grid, paths, init, goal, max_time, heuristic):
@@ -75,8 +73,10 @@ def ReachGoal_variant(grid, paths, init, goal, max_time, heuristic):
     open = PriorityQueue(init, f = f_score)
     closed = list()
 
-    while open and time < max_time:
+    while open :
         current_state = open.pop()
+        if(current_state.time > max_time):
+            return None
         closed.append(current_state)
 
         if current_state.is_goal(goal):  # current_state[1] is the node
@@ -102,7 +102,6 @@ def ReachGoal_variant(grid, paths, init, goal, max_time, heuristic):
                     elif f_score(child_state) < open[child_state]:
                         del open[child_state]
                         open.add(child_state)
-        time += 1
     return None
 
 def is_collision_free(current, next_node, paths, time, cols):
