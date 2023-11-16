@@ -9,9 +9,9 @@ class PriorityQueue:
 
     def add(self, item):
         """Aggiunge un item alla coda."""
-        #test
-        print("new node in open =",item.get_node(),"f =",self.f(item))
-        #test
+        # test
+        print("new node in open =", item.get_node(), "f =", self.f(item))
+        # test
         pair = (self.f(item), item)
         heapq.heappush(self.queue, pair)
 
@@ -52,27 +52,37 @@ class PriorityQueue:
             raise KeyError(str(key) + " is not in the priority queue")
         heapq.heapify(self.queue)
 
-
     def __str__(self):
-        string_open_list = ', '.join(f"< ({item[1].node},{item[1].time}),{item[0]}>" for item in self.queue)
+        string_open_list = ", ".join(
+            f"< ({item[1].node},{item[1].time}),{item[0]}>" for item in self.queue
+        )
         return string_open_list
 
     def is_empty(self):
         return len(self) == 0
+
+
 # ________________________________________________________________
 
 
 def expand(grid, parent_state, time):
     print("_______________________")
-    print("time =",time)
-    print("nodi espansi dal nodo ,",parent_state.get_node(),":")
+    print("time =", time)
+    print("nodi espansi dal nodo ,", parent_state.get_node(), ":")
     """Ritorna una lista di nodi raggiungibili da node."""
     for child_node, weight in grid.get_adj_list(parent_state.get_node()).items():
-        #test
+        # test
         p = parent_state.get_node()
         pc = parent_state.get_path_cost()
         cost = pc + weight
-        print("p = ",p,"child = ",child_node,"path cost = ",cost)
-        yield State(child_node, time + 1, parent = parent_state, path_cost=cost)
-        # test  
+        print("p = ", p, "child = ", child_node, "path cost = ", cost)
+        yield State(child_node, time + 1, parent=parent_state, path_cost=cost)
+    # ritorno lo stato padre
+
+    yield State(
+        parent_state.node, parent_state.time + 1, parent_state, parent_state.path_cost + 1
+    )
+    # test
+
+
 # ________________________________________________________________

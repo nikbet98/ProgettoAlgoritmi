@@ -79,7 +79,7 @@ class ChebyshevDistance(Heuristic):
         return self.estimate(node)
     
 class ManhattanDistance(Heuristic):
-    def __init__(self, grid, goal):
+    def __init__(self, grid, goal,D):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
         self.D = D
@@ -169,7 +169,8 @@ class HeuristicRelaxPath(Heuristic):
     def return_path(self,starting_node, end_node, path=list()):
         while starting_node != end_node:
             path.append(starting_node)
-            self.return_path(self.predecessors[starting_node], end_node, path)
+            return self.return_path(self.predecessors[starting_node], end_node, path)
+        path.append(end_node)
         return path
     
     def __call__(self, node):

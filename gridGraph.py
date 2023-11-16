@@ -158,3 +158,6 @@ class GridGraph:
  
   def get_edge_weight(self, node1, node2):
     return self.adj_list[node1][node2]
+  
+  def get_free_nodes(self):
+    return [node for node in self.nodes if self.get_adj_list(node) != {}]
