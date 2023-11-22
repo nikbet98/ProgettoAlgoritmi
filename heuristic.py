@@ -16,7 +16,7 @@ class Heuristic(ABC):
 # -------------------------------------------------------------------------------- #
 def get_coordinates(node,col):
     """
-    get_coordinates: funzione per ottenere le cordinate di un certo nodo nella griglia
+    get_coordinates: funzione per ottenere le coordinate di un certo nodo nella griglia
     param node: nodo di cui ci interessano le coordinate
     param col: colonne della griglia
     return: coordinate x,y del nodo

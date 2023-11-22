@@ -57,6 +57,7 @@ class GridGraph:
         if direction_row != 0 and direction_col != 0: # ci stiamo muovendo in diagonale
           weight = WEIGHT_DIAGONAL_DIRECTION
         self.add_edge(node, neighbor, weight)
+    self.add_edge(node, node, WEIGHT_CARDINAL_DIRECTION)
 
   def generate_obstacles(self):
     """
@@ -136,7 +137,8 @@ class GridGraph:
 
   def delete_edge(self, node1, node2):
     self.adj_list[node1].pop(node2)
-    self.adj_list[node2].pop(node1)
+    if node1 != node2:
+      self.adj_list[node2].pop(node1)
 
   def get_adj_list(self, node):
     return self.adj_list[node]

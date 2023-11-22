@@ -1,54 +1,43 @@
 import pickle
-from agents import generate_paths
+from agents import Agents
 from gridGraph import GridGraph
 from plotGraph import graphPlotter
-from compito2 import ReachGoal, ReachGoal_variant
+from search import ReachGoal, ReachGoal_variant
 from heuristic import *
+from problem import Problem
 from state import State
 
-goal = 7
-initial_state = State(0, 0)
-max_time = 100
-# robot1 = [0,2,3]
-# robot2 = [6,4,7]
-# paths = []
-# paths.append(robot1)
-# paths.append(robot2)
+def main():
 
-graph = GridGraph(
-    rows=10, cols=10, traversability_ratio=0.90, obstacle_agglomeration_ratio=0.5
-)
 
-paths = generate_paths(graph, max_time, num_paths=3)
-print(paths)
-# stampo su terminale la griglia
-print(graph)
+    goal = 7
+    max_time = 100
 
-# salvo la griglia su file
-"""
-with open('graph.pickle', 'wb') as f:
-    pickle.dump(graph, f)
-    f.close()
-"""
+    pf4ea = Problem(
+        rows=5,
+        cols=5,
+        traversability_ratio=0.90,
+        obstacle_agglomeration_ratio=0.5,
+        num_agents=2,
+        maximum_time=5,
+    )
 
-# leggo il grafico da file
-# f = open('graph.pickle', 'rb')
-# graph = pickle.load(f)
-# f.close()
+    print(pf4ea.agent_paths)
+    print("#---------------------#")
+    print(pf4ea.grid)
+ 
 
-# print(graph)
-# h = HeuristicRelaxPath(graph, goal)
+    h = DiagonalDistance(
+        pf4ea.grid, pf4ea.goal, weigh_cardinal_direction=1, weight_diagonal_direction=2
+    )
+    for i in range(pf4ea.grid.get_size()):
+        print("nodo = ", i, " : ", "h = ", h(i))
+    soluzione = ReachGoal(pf4ea, h)
 
-# # h = DiagonalDistance(
-# #     graph, goal, weigh_cardinal_direction=1, weight_diagonal_direction=2
-# # )
+    print(pf4ea.agent_paths)
+    graphPlotter(pf4ea.grid)
 
-# for i in range(0, 9):
-#     print("nodo = ", i, "h = ", h(i))
+  
 
-# prova = ReachGoal_variant(graph, paths, initial_state, goal, max_time, h)
-# print("print del risultato")
-# print(prova)
-
-# # disegna il grafico
-graphPlotter(graph)
+if __name__ == "__main__":
+    main()
