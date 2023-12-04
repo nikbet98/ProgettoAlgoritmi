@@ -101,7 +101,7 @@ def calculate_agent_positions(agent_path, time):
     return agent_current_node, agent_next_node
 
 
-def is_collision_free(paths, current_node, next_node, time,cols):
+def is_collision_free(paths, current_node, next_node, time, cols):
     """
     Verifica se il prossimo nodo scelto è privo di collisioni con gli agenti presenti nel problema.
 
@@ -119,11 +119,11 @@ def is_collision_free(paths, current_node, next_node, time,cols):
             agent_path, time
         )
         if check_collision(
-            current_node,
-            next_node,
-            agent_current_position,
-            agent_next_position,
-            cols,
+                current_node,
+                next_node,
+                agent_current_position,
+                agent_next_position,
+                cols,
         ):
             return False
 
@@ -131,7 +131,7 @@ def is_collision_free(paths, current_node, next_node, time,cols):
 
 
 def check_collision(
-    current_node, next_node, current_position, next_position, grid_cols
+        current_node, next_node, current_position, next_position, grid_cols
 ):
     """
     Verifica se si verifica una collisione tra due nodi nel grid.
@@ -203,7 +203,7 @@ def expand(problem, parent_state):
     time = parent_state.time
 
     for child_node, weight in problem.grid.get_adj_list(
-        parent_state.get_node()
+            parent_state.get_node()
     ).items():
         # test
         p = parent_state.get_node()
@@ -212,3 +212,11 @@ def expand(problem, parent_state):
         print("p =", p, "child =", child_node, "path cost =", cost)
         yield State(child_node, time + 1, parent=parent_state, path_cost=cost)
     # ritorno lo stato padre
+
+
+def get_path_cost(path, grid):
+    cost = 0
+    for i in range(len(path) - 1):
+        cost = cost + grid.get_edge_weight(path[i], path[i + 1])
+
+    return cost

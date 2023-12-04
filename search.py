@@ -27,9 +27,12 @@ def ReachGoal(problem, heuristic):
         heuristic: La funzione euristica utilizzata per valutare lo stato.
 
     Returns:
-        Il percorso ottimo per raggiungere l'obiettivo, rappresentato come una lista di stati.
-        Se non è possibile raggiungere l'obiettivo, restituisce None.
+        - Path: percorso ottimo per arrivare al goal da init, o None se non è stato trovato alcun percorso valido.
+        - Open length: lunghezza della lista open a fine esecuzione.
+        - Closed length: lunghezza della lista closed a fine esecuzione.
+        - Waited: numero delle azioni wait eseguite dall'agente.
     """
+
     waited = 0
 
     f_score = lambda state: state.get_path_cost() + heuristic(state.get_node())
@@ -46,7 +49,7 @@ def ReachGoal(problem, heuristic):
             waited += 1
             
         if time > problem.maximum_time:
-            return None
+            return None, len(open), len(closed), waited
         
         # test
         print("current state =", current_state.node, "time =", time)
@@ -54,7 +57,7 @@ def ReachGoal(problem, heuristic):
         closed.append(current_state)
 
         if current_state.is_goal(problem.goal):  # current_state[1] is the node
-            return ReconstructPath(init, current_state)
+            return ReconstructPath(init, current_state), len(open), len(closed), waited
 
         for child_state in expand(problem, current_state):
             if child_state not in closed:
@@ -82,7 +85,7 @@ def ReachGoal(problem, heuristic):
         print("_______________________")
         # test
 
-    return None
+    return None, len(open), len(closed), waited
 
 
 def ReachGoal_variant(problem, heuristic):

@@ -22,15 +22,15 @@ class Problem:
     """
 
     def __init__(
-        self,
-        rows,
-        cols,
-        traversability_ratio,
-        obstacle_agglomeration_ratio,
-        num_agents,
-        maximum_time,
-        init = None,
-        goal = None
+            self,
+            rows,
+            cols,
+            traversability_ratio,
+            obstacle_agglomeration_ratio,
+            num_agents,
+            maximum_time,
+            init=None,
+            goal=None
     ):
         self.grid = GridGraph(
             rows, cols, traversability_ratio, obstacle_agglomeration_ratio
@@ -44,8 +44,27 @@ class Problem:
         self.cols = cols
         self.init = init
         self.goal = goal
+        self.num_agents = num_agents
         self.maximum_time = maximum_time
-        
+        self.traversability_ratio = traversability_ratio
+        self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
+
         self.agent_paths = agents.generate_paths(self.grid, empty_nodes)
 
-        
+    def print_info(self):
+        out = ("Dimensioni della griglia: " + str(self.grid.rows) + "x" + str(self.grid.cols) + '\n'
+               + "Traversabilità della griglia: " + str(self.traversability_ratio) + '\n'
+               + "Agglomerazione ostacoli: " + str(self.obstacle_agglomeration_ratio) + '\n'
+               + "Numero Agenti: " + str(self.num_agents) + '\n'
+               + "Percorso agenti:" + '\n'
+               + self.print_agents_path()
+               + "Tempo max: " + str(self.maximum_time) + '\n'
+               + "Nodo iniziale: " + str(self.init) + '\n'
+               + "Nodo Finale: " + str(self.goal)+ '\n')
+        return out
+
+    def print_agents_path(self):
+        out = ""
+        for path in self.agent_paths:
+            out = out + str(path) + '\n'
+        return out
