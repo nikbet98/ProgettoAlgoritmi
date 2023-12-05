@@ -1,9 +1,10 @@
+import math
 import random
 import sys
 
 # costanti
 WEIGHT_CARDINAL_DIRECTION = 1
-WEIGHT_DIAGONAL_DIRECTION = 2
+WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)
 
 
 class GridGraph:
@@ -120,9 +121,22 @@ class GridGraph:
         """
     Genera un nuovo cluster di ostacoli a partire dal nodo specificato.
     """
+        while len(cluster) < dim_cluster:
+            available = []
+            for node in cluster[::-1]:
+                neighbors = self.get_adj_list(node)
+                available = [node for node in neighbors if
+                             node not in cluster and
+                             self.are_neighbors_obstacle_free(node, obstacles)]
+                if available:
+                    break
+            if not available:
+                return cluster
+            next_node = random.sample(available, 1)[0]
+            cluster.append(next_node)
         if len(cluster) == dim_cluster:
-            print(len(cluster))
             return cluster
+        """
         available = []
         for node in cluster[::-1]:
             neighbors = self.get_adj_list(node)
@@ -137,6 +151,8 @@ class GridGraph:
         next_node = random.sample(available, 1)[0]
         cluster.append(next_node)
         return self.generate_obstacle_cluster(dim_cluster, obstacles, cluster)
+        """
+        return cluster
 
     def set_as_obstacle(self, node):
         neighbors = list(self.adj_list[node].keys())

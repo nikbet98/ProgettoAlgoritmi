@@ -7,14 +7,16 @@ from gridGraph import GridGraph
 def ReconstructPath(init, goal_state):
     path = [goal_state.get_node()]
     current_state = goal_state
+    wait = 0
     while current_state.get_node() != init.get_node():
         next_state = current_state.get_parent()
         path.append(next_state.get_node())
+        if current_state.get_node() == next_state.get_node():
+            wait += 1
         current_state = next_state
-
     # test
     path.reverse()
-    return path
+    return path, wait
 
 
 def ReachGoal(problem, heuristic):
@@ -44,16 +46,14 @@ def ReachGoal(problem, heuristic):
         current_state = open.pop()
         time = current_state.time
 
-        if not current_state.is_parent_None() and current_state == current_state.parent.node:
-            waited += 1
-
         if time > problem.maximum_time:
             return None, len(open), len(closed), waited
 
         closed.append(current_state)
 
         if current_state.is_goal(problem.goal):  # current_state[1] is the node
-            return ReconstructPath(init, current_state), len(open), len(closed), waited
+            path, waited = ReconstructPath(init, current_state)
+            return path, len(open), len(closed), waited
 
         for child_state in expand(problem, current_state):
             if child_state not in closed:
@@ -87,17 +87,16 @@ def ReachGoal_variant(problem, heuristic):
     while open:
         current_state = open.pop()
         time = current_state.time
-
-        if not current_state.is_parent_None() and current_state == current_state.parent.node:
+        closed.append(current_state)
+        if (not current_state.is_parent_None()) and (current_state.get_node == current_state.parent.get_node):
             waited += 1
 
         if current_state.time > problem.maximum_time:
             return None, len(open), len(closed), waited
 
-        closed.append(current_state)
-
         if current_state.is_goal(problem.goal):  # current_state[1] is the node
-            return ReconstructPath(init, current_state), len(open), len(closed), waited
+            path, waited = ReconstructPath(init, current_state)
+            return path, len(open), len(closed), waited
 
         current_node = current_state.get_node()
         path_free = is_free_path(problem, current_node, time, predecessors)
@@ -106,7 +105,7 @@ def ReachGoal_variant(problem, heuristic):
             path_from_current = heuristic.return_path(
                 predecessors[current_state.get_node()], problem.goal
             )
-            path_to_current = ReconstructPath(init, current_state)
+            path_to_current, waited = ReconstructPath(init, current_state)
 
             return path_to_current + path_from_current, len(open), len(closed), waited
 
@@ -115,7 +114,7 @@ def ReachGoal_variant(problem, heuristic):
                 current_node = child_state.get_node()
                 child_node = current_state.get_node()
                 # check if the path is traversable
-                traversable = is_collision_free(problem, current_node, child_node, time)
+                traversable = is_collision_free(problem.agent_paths, current_node, child_node, time, problem.cols)
 
                 if traversable:
                     if child_state not in open:

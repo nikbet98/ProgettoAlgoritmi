@@ -22,28 +22,29 @@ MAXIMUM_TIME = "MAXIMUM_TIME"
 WEIGHT_CARDINAL_DIRECTION = 1
 WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)
 
-file = "./csv/100x100_08_02_10_100.csv"
+# file = "./csv/100x100_08_02_10_100.csv"
 # file = "./csv/10x10_08_02_3_20 .csv"
+# file = "./csv/1000x100_08_01_25_750.csv"
+file = "./csv/10x10_1_1_30_30.csv"
 
 
 def main():
     # leggiamo la configurazione da file
-    #config = repository.load_csv(file)
+    # config = repository.load_csv(file)
     # generiamo il problema
-    #pf4ea, generating_instance_time = generate_instance(config)
+    # pf4ea, generating_instance_time = generate_instance(config)
     # salvo il problema file
-    #repository.write_problem(pf4ea)
-    # carico il problema file
-    pf4ea = repository.read_problem("100x100_0.8_0.2_10_100_1648_4974")
+    # repository.write_problem(pf4ea)
+    # carico il problema da file
+    pf4ea = repository.read_problem("25x25_0.6_0.1_30_50_233_199")
     # calcoliamo l'euristica
-    h, heuristic_time = generate_heuristic(pf4ea, 0)
+    h, heuristic_time = generate_heuristic(pf4ea, 1)
     # troviamo la soluzione
-    sol, open_list, closed_list, wait, resolution_time = search_solution(pf4ea, h, 0)
+    sol, open_list, closed_list, wait, resolution_time = search_solution(pf4ea, h, 1)
     # salva il risultato (se ho generato tutto da 0)
     # save_result(pf4ea, h, [generating_instance_time, heuristic_time, resolution_time], sol,
-    #           get_path_cost(sol, pf4ea.grid), open_list, closed_list, wait)
+    #            get_path_cost(sol, pf4ea.grid), open_list, closed_list, wait)
     # salva il risultato (se ho caricato il problema)
-
     save_result(pf4ea, h, [0, heuristic_time, resolution_time], sol,
                 get_path_cost(sol, pf4ea.grid), open_list, closed_list, wait)
     graphPlotter(pf4ea.grid)
