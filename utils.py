@@ -173,7 +173,7 @@ def is_free_path(problem, current_node, time, predecessors):
     Returns:
         bool: True se esiste un percorso libero fino al nodo obiettivo, False altrimenti.
     """
-    if time > problem.max_time:
+    if time > problem.maximum_time:
         return False
     next_node = predecessors[current_node]
     if is_collision_free(problem.agent_paths, current_node, next_node, time, problem.cols):
@@ -194,22 +194,14 @@ def expand(problem, parent_state):
     Yields:
         Stati figli raggiungibili dal nodo genitore.
     """
-    # test
-    print("_______________________")
-    print("time =", parent_state.time)
-    print("nodi espansi dal nodo,", parent_state.get_node(), ":")
-    # test
-
     time = parent_state.time
 
     for child_node, weight in problem.grid.get_adj_list(
             parent_state.get_node()
     ).items():
         # test
-        p = parent_state.get_node()
         pc = parent_state.get_path_cost()
         cost = pc + weight
-        print("p =", p, "child =", child_node, "path cost =", cost)
         yield State(child_node, time + 1, parent=parent_state, path_cost=cost)
     # ritorno lo stato padre
 

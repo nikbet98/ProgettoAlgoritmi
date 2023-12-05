@@ -26,11 +26,10 @@ def generate_name(problem):
             + str(problem.goal))
 
 
-def write_problem(problem, heuristic):
+def write_problem(problem):
     file_name = generate_name(problem)
     with open(INSTANCES + file_name, "wb") as to_write:
-        obj = [problem, heuristic]
-        pickle.dump(obj, to_write)
+        pickle.dump(problem, to_write)
 
 
 def write_result(problem, heuristic, times, path, path_cost, open_list, closed_list, wait):

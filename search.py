@@ -14,7 +14,6 @@ def ReconstructPath(init, goal_state):
 
     # test
     path.reverse()
-    print(path)
     return path
 
 
@@ -47,13 +46,10 @@ def ReachGoal(problem, heuristic):
 
         if not current_state.is_parent_None() and current_state == current_state.parent.node:
             waited += 1
-            
+
         if time > problem.maximum_time:
             return None, len(open), len(closed), waited
-        
-        # test
-        print("current state =", current_state.node, "time =", time)
-        # test
+
         closed.append(current_state)
 
         if current_state.is_goal(problem.goal):  # current_state[1] is the node
@@ -65,7 +61,7 @@ def ReachGoal(problem, heuristic):
                 child_node = child_state.get_node()
 
                 # check if the path is traversable
-                traversable = is_collision_free(problem.agent_paths, current_node, child_node,time,problem.cols)
+                traversable = is_collision_free(problem.agent_paths, current_node, child_node, time, problem.cols)
 
                 if traversable:
                     if child_state not in open:
@@ -74,22 +70,13 @@ def ReachGoal(problem, heuristic):
                         del open[child_state]
                         open.add(child_state)
 
-        # test
-        print("open list :")
-        print(open)
-        print("closed list :")
-        string_closed_list = ", ".join(
-            f"< ({state.node},{state.time}),{f_score(state)}>" for state in closed
-        )
-        print(string_closed_list)
-        print("_______________________")
-        # test
-
     return None, len(open), len(closed), waited
 
 
 def ReachGoal_variant(problem, heuristic):
     predecessors = heuristic.get_predecessors()
+
+    waited = 0
 
     f_score = lambda state: state.get_path_cost() + heuristic(state.get_node())
 
@@ -101,32 +88,34 @@ def ReachGoal_variant(problem, heuristic):
         current_state = open.pop()
         time = current_state.time
 
-        if current_state.time > problem.max_time:
-            return None
-        
+        if not current_state.is_parent_None() and current_state == current_state.parent.node:
+            waited += 1
+
+        if current_state.time > problem.maximum_time:
+            return None, len(open), len(closed), waited
+
         closed.append(current_state)
 
         if current_state.is_goal(problem.goal):  # current_state[1] is the node
-            return ReconstructPath(init, current_state)
+            return ReconstructPath(init, current_state), len(open), len(closed), waited
 
         current_node = current_state.get_node()
         path_free = is_free_path(problem, current_node, time, predecessors)
 
         if path_free:
-    
             path_from_current = heuristic.return_path(
                 predecessors[current_state.get_node()], problem.goal
             )
             path_to_current = ReconstructPath(init, current_state)
 
-            return path_to_current + path_from_current
+            return path_to_current + path_from_current, len(open), len(closed), waited
 
         for child_state in expand(problem, current_state):
             if child_state not in closed:
                 current_node = child_state.get_node()
                 child_node = current_state.get_node()
                 # check if the path is traversable
-                traversable = is_collision_free(problem, current_node,child_node, time)
+                traversable = is_collision_free(problem, current_node, child_node, time)
 
                 if traversable:
                     if child_state not in open:
@@ -134,9 +123,4 @@ def ReachGoal_variant(problem, heuristic):
                     elif f_score(child_state) < open[child_state]:
                         del open[child_state]
                         open.add(child_state)
-    return None
-
-
-
-
-
+    return None, len(open), len(closed), waited
