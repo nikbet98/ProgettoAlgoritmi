@@ -183,7 +183,11 @@ class GridGraph:
         return self.size
 
     def get_obstacles(self):
-        return self.nodes.filter(lambda node: self.get_adj_list(node) == {})
+        obstacles = []
+        for node in self.nodes:
+            if self.get_adj_list(node) == {}:
+                obstacles.append(node)
+        return obstacles
 
     def get_edge_weight(self, node1, node2):
         return self.adj_list[node1][node2]

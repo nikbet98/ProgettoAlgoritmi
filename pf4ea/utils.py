@@ -74,11 +74,14 @@ class PriorityQueue:
         """
         Restituisce una rappresentazione stringa della coda prioritaria.
         """
-        string_open_list = ", ".join(
-            f"<({item[1].node}, {item[1].time}), {item[0]}>" for item in self.queue
+        if self.is_empty():
+            return "La coda è vuota."
+        
+        sorted_queue = sorted(self.queue, key=lambda items: items[1].time)
+        string = ", ".join(
+            f"<{item[1].node}, {item[1].time}, {item[0]}>" for item in sorted_queue
         )
-        return string_open_list
-
+        return string
     def is_empty(self):
         """
         Verifica se la coda prioritaria è vuota.
@@ -197,10 +200,10 @@ def expand(problem, parent_state):
     time = parent_state.time
 
     for child_node, weight in problem.grid.get_adj_list(
-            parent_state.get_node()
+            parent_state.node
     ).items():
         # test
-        pc = parent_state.get_path_cost()
+        pc = parent_state.path_cost
         cost = pc + weight
         yield State(child_node, time + 1, parent=parent_state, path_cost=cost)
     # ritorno lo stato padre
@@ -212,3 +215,16 @@ def get_path_cost(path, grid):
         cost = cost + grid.get_edge_weight(path[i], path[i + 1])
 
     return cost
+
+
+# ---------------------------------------------------------------
+def get_coordinates(node,col):
+    """
+    get_coordinates: funzione per ottenere le coordinate di un certo nodo nella griglia
+    param node: nodo di cui ci interessano le coordinate
+    param col: colonne della griglia
+    return: coordinate x,y del nodo
+    """
+    x_node = (node)//col
+    y_node = (node)% col
+    return x_node, y_node

@@ -1,6 +1,5 @@
 import math
 import random
-from search import ReachGoal, ReachGoal_variant
 from utils import is_collision_free
 from heuristic import *
 from state import State
@@ -93,8 +92,9 @@ class Agents:
         return path
 
 
-
-
+    def __str__(self):
+        return '\n'.join(str(path) for path in self.paths)
+    
 # ------
 # def generate_paths(grid, max_time, num_paths):
 #     paths = []

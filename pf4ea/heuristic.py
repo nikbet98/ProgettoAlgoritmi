@@ -1,7 +1,21 @@
 import math
 import heapq
 from abc import ABC, abstractmethod
+from utils import get_coordinates
 
+# costanti
+WEIGHT_CARDINAL_DIRECTION = 1
+WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)
+
+
+HEURISTIC_CLASSES = {
+    "h1": "DiagonalDistance",
+    "h2": "ChebyshevDistance",
+    "h3": "ManhattanDistance",
+    "h4": "EuclideanDistance",
+    "h5": "HeuristicRelaxPath",
+    "h6": "BackwardDijkstra2"
+}
 
 class Heuristic(ABC):
 
@@ -14,24 +28,14 @@ class Heuristic(ABC):
         pass
 
 # -------------------------------------------------------------------------------- #
-def get_coordinates(node,col):
-    """
-    get_coordinates: funzione per ottenere le coordinate di un certo nodo nella griglia
-    param node: nodo di cui ci interessano le coordinate
-    param col: colonne della griglia
-    return: coordinate x,y del nodo
-    """
-    x_node = (node-1)//col
-    y_node = (node-1)% col
-    return x_node, y_node
 
 # ---------------------------------- Euristiche ---------------------------------- #
 class DiagonalDistance(Heuristic):
-    def __init__(self, grid, goal,weigh_cardinal_direction, weight_diagonal_direction):
+    def __init__(self, grid, goal):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
-        self.D = weigh_cardinal_direction
-        self.D2 = weight_diagonal_direction
+        self.D = WEIGHT_CARDINAL_DIRECTION
+        self.D2 = WEIGHT_DIAGONAL_DIRECTION
         self.goal = goal
 
     def estimate(self, init):

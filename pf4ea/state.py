@@ -26,9 +26,6 @@ class State:
     def is_goal(self, goal):
         return self.node == goal
     
-    def get_node(self):
-        return self.node
-    
     def get_path_cost(self):
         return self.path_cost
     
@@ -43,6 +40,8 @@ class State:
     def get_parent(self):
         return self.parent
 
+    def __hash__(self):
+        return hash((self.node, self.time))
     def __eq__(self, other):
         """Viene chiamato quando si confrontano due stati con l'operatore =="""
         """isinstance verifica che l'oggetto sia un'istanza di State"""
@@ -51,8 +50,11 @@ class State:
     def __lt__(self, other):
         return self.path_cost < other.get_path_cost()
     
+    def __str__(self):
+        return f"{self.node}, {self.time}"
+    
     def is_a_wait(self):
-        current = self.get_node()
+        current = self.node()
         if self.parent is None:
             return False
         p = self.parent.get_node()
