@@ -109,7 +109,6 @@ def main():
 def generate_instance(config):
     start_time = time.time()
     # Converte le stringhe numeriche in interi o float
-    config = {k: float(v) if "." in v else int(v) for k, v in config.items()}
     problem_instance = Problem(**config)
     elapsed_time = time.time() - start_time
     return problem_instance, elapsed_time

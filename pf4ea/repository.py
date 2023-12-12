@@ -13,7 +13,22 @@ RESULTS_DIRECTORY = os.path.join(PARENT_DIRECTORY, "benchmarks", "results")
 
 def load_configurations(file):
     with open(file, mode="r") as csv_file:
-        configurations = list(csv.DictReader(csv_file))
+        configurations = []
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            config = {}
+            for k, v in row.items():
+                config[k] = v
+                if k in ['rows', 'cols', 'num_agents', 'maximum_time']:
+                    config[k] = int(v)
+                elif k in ['traversability_ratio', 'obstacle_agglomeration_ratio']:
+                    float_value = float(v)
+                    if 0 <= float_value <= 1:
+                        config[k] = float_value
+                    else:
+                        raise ValueError(f"{k} must be between 0 and 1.")
+            configurations.append(config)
+
     print(f"Configurazioni caricate correttamente da {file}.")
     return configurations
 
@@ -49,6 +64,7 @@ def save_report(problem, solver, heuristic, problem_time, search_time, heuristic
 
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{problem}")
+        file.write(f"{problem.grid.obstacles_to_string()}")
         file.write("\n<!-- ************************** -->\n")
         file.write(f"{solver}")
         file.write("\n<!-- ************************** -->\n")

@@ -1,47 +1,18 @@
-import math
 import random
-from utils import is_collision_free
+from typing import List, Optional
+from utils import is_free_collision
 from heuristic import *
-from state import State
+from gridGraph import GridGraph
 
 
 class Agents:
-    """
-    Classe che rappresenta un insieme di agenti che generano percorsi casuali su una griglia.
-
-    Args:
-        max_time (int): Il tempo massimo percorribile da ciascun agente.
-        num_paths (int): Il numero di percorsi da generare.
-
-    Attributes:
-        max_time (int): Il tempo massimo percorribile da ciascun agente.
-        paths (list): Lista dei percorsi generati dagli agenti.
-        num_paths (int): Il numero di percorsi da generare.
-
-    Methods:
-        generate_paths(grid): Genera i percorsi casuali sulla griglia specificata.
-        generate_single_path(grid, available_nodes, cols): Genera un singolo percorso casuale sulla griglia.
-
-    """
-
-    def __init__(self, max_time, num_paths):
+    def __init__(self, max_time: int, num_paths: int):
         self.max_time = max_time
-        self.paths = []
+        self.paths: List[List[int]] = []
         self.num_paths = num_paths
 
-    def generate_paths(self,grid, available_nodes):
-        """
-        Genera i percorsi casuali sulla griglia specificata.
-
-        Args:
-            grid (Grid): La griglia su cui generare i percorsi.
-
-        Returns:
-            list: Lista dei percorsi generati dagli agenti.
-
-        """
+    def generate_paths(self, grid: GridGraph, available_nodes: List[int]) -> List[List[int]]:
         random.shuffle(available_nodes)
-
         cols = grid.get_dim()[1]
 
         for _ in range(self.num_paths):
@@ -49,52 +20,37 @@ class Agents:
                 print("Non ci sono più nodi disponibili")
                 break
 
-            path = self.generate_single_path(grid, available_nodes, cols)
+            path = self._generate_single_path(grid, available_nodes, cols)
             if path is not None:
                 self.paths.append(path)
 
         return self.paths
 
-    def generate_single_path(self, grid, available_nodes, cols):
-        """
-        Genera un singolo percorso casuale sulla griglia.
-
-        Args:
-            grid (Grid): La griglia su cui generare il percorso.
-            available_nodes (list): Lista dei nodi disponibili sulla griglia.
-            cols (int): Il numero di colonne della griglia.
-
-        Returns:
-            list: Il percorso generato.
-
-        """
-        
+    def _generate_single_path(self, grid: GridGraph, available_nodes: List[int], cols: int) -> Optional[List[int]]:
         current_node = available_nodes.pop()
         path = [current_node]
 
         agent_path_duration = random.randint(1, self.max_time)
-        random.shuffle(available_nodes)
 
         for time in range(agent_path_duration):
-            
-            if available_nodes == []:
+            if not available_nodes:
                 break
 
-            neighbors = grid.get_adj_list(current_node)
-            next_node = random.choice(list(neighbors))
+            neighbors = list(grid.get_adj_list(current_node))
+            random.shuffle(neighbors)
 
-            while not is_collision_free(self.paths,current_node, next_node, time,cols):
-                next_node = random.choice(list(neighbors))
-
-            path.append(next_node)
-            current_node = next_node
+            for next_node in neighbors:
+                if is_free_collision(self.paths, current_node, next_node, time, cols):
+                    path.append(next_node)
+                    current_node = next_node
+                    break
+            else:
+                return None
 
         return path
 
-
-    def __str__(self):
+    def __str__(self) -> str:
         return '\n'.join(str(path) for path in self.paths)
-    
 # ------
 # def generate_paths(grid, max_time, num_paths):
 #     paths = []

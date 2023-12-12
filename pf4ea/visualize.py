@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3Rect
+from matplotlib.lines import Line2D
 import yaml
 import matplotlib
 
@@ -13,7 +14,7 @@ import matplotlib.animation as manimation
 import argparse
 import math
 
-Colors = ["orange", "blue", "green","red","cyan"]
+COLORS = ["orange", "blue", "green","purple","cyan"]
 
 
 class Animation:
@@ -26,45 +27,31 @@ class Animation:
         self.paths = [[get_coordinates(node,cols) for node in path] for path in paths]
         self.robot_path = [get_coordinates(node,cols) for node in solution]
         
-        # self.combined_schedule.update(self.schedule["schedule"])
-
-        # aspect = map["map"]["dimensions"][0] / map["map"]["dimensions"][1]
         aspect = rows / cols
-        # Creo una nuova figura fig
-        self.figure = plt.figure(frameon=False, figsize=(4 * aspect, 4))
-        # Aggiungo un asse alla figure
-        self.axis = self.figure.add_subplot(111, aspect="equal")
-        # self.axis.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
-        # Regolo lo spazio tra i subplot
-        self.figure.subplots_adjust(
-            left=0, right=1, bottom=0, top=1, wspace=None, hspace=None
-        )
-        # self.ax.set_frame_on(False)
+        self.figure, self.axis = plt.subplots(figsize=(4 * aspect, 4))
+        self.axis.set_aspect('equal')
+        # plt.axis('off')
 
-        # Lista usata per memorizzare oggetti grafici
+        # Lista di oggetti grafici
         self.patches = []
-        # In Matplotlib un artist è qualsiasi cosa che possa essere disegnata
-        # su un asse.
+        # Lista di qualsiasi cosa possa essere disegnata su un asse
         self.artists = []
-
         self.agents = dict()
         self.agent_names = dict()
         self.myRobot = None
         self.myRobot_name = None
+
         # create boundary patch
         xmin = -0.5
         ymin = -0.5
-        xmax = rows - 0.5
-        ymax = cols - 0.5
+        xmax = rows-0.5
+        ymax = cols-0.5
 
         # self.ax.relim()
 
         # Imposto i limiti sugli assi x e y.
-        plt.xlim(xmin, xmax)
-        plt.ylim(ymin, ymax)
+        self.draw_grid(rows,cols)
         
-        self.axis.set_xticks([])
-        self.axis.set_yticks([])
         # plt.axis('off')
         # self.ax.axis('tight')
         # self.ax.axis('off')
@@ -72,7 +59,7 @@ class Animation:
         # aggiungo un rettangolo alla lista degli oggetti grafici
         self.patches.append(
             Rectangle(
-                (xmin, ymin),
+                (xmin-0.5, ymin-0.5),
                 xmax - xmin,
                 ymax - ymin,
                 facecolor="none",
@@ -82,21 +69,21 @@ class Animation:
         for obstacle in obstacles:
             x, y = obstacle
             self.patches.append(
-                Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor="black", edgecolor="black")
+                Rectangle((x-0.5,y-0.5), 1,1, facecolor="black", edgecolor="black")
             )
 
         # Creo i percorsi degli agenti:
         self.T = 0
-        # Disegno i goal e gli start degli agenti e del nostro automa
+        # Disegna goal,start degli agenti e del myRobot
         x_goal, y_goal = self.robot_path[-1]
         x_init, y_init = self.robot_path[0]
         
         self.patches.append(
                 Rectangle(
-                    (x_goal - 0.25, y_goal - 0.25),
-                    0.5,
-                    0.5,
-                    facecolor=Colors[3],
+                    (x_goal-0.5 , y_goal-0.5),
+                    1,
+                    1,
+                    facecolor=COLORS[3],
                     edgecolor="black",
                     alpha=0.5,
                 )
@@ -104,8 +91,8 @@ class Animation:
   
         self.myRobot = Circle(
                 (x_init, y_init),
-                0.3,
-                facecolor=Colors[4],
+                0.35,
+                facecolor=COLORS[4],
                 edgecolor="black",
             )
         
@@ -115,14 +102,18 @@ class Animation:
         self.myRobot_name.set_verticalalignment("center")
         self.artists.append(self.myRobot_name)
 
+        x_coord_line, y_coord_line = zip(*self.robot_path)
+        myRobot_path_line = Line2D(x_coord_line,y_coord_line,linewidth=3,linestyle='--')
+        self.artists.append(myRobot_path_line)
+
         for agent_id, path in enumerate(self.paths):
             x_goal, y_goal = path[-1]
             self.patches.append(
                 Rectangle(
-                    (x_goal - 0.25, y_goal - 0.25),
-                    0.5,
-                    0.5,
-                    facecolor=Colors[0],
+                    (x_goal-0.5, y_goal-0.5),
+                    1,
+                    1,
+                    facecolor=COLORS[0],
                     edgecolor="black",
                     alpha=0.5,
                 )
@@ -131,11 +122,11 @@ class Animation:
             x_start, y_start = path[0]
             self.agents[agent_id] = Circle(
                 (x_start, y_start),
-                0.3,
-                facecolor=Colors[0],
+                0.35,
+                facecolor=COLORS[0],
                 edgecolor="black",
             )
-            self.agents[agent_id].original_face_color = Colors[0]
+            self.agents[agent_id].original_face_color = COLORS[0]
             self.patches.append(self.agents[agent_id])
             self.T = max(self.T, len(path))
             self.agent_names[agent_id] = self.axis.text(
@@ -156,9 +147,22 @@ class Animation:
             self.animate_func,
             init_func=self.init_func,
             frames=int(self.T + 1) * 10,
-            interval=100,
+            interval=1000,
             blit=True,
+            repeat_delay=3000,
         )
+
+    def draw_grid(self, rows, cols):
+        self.axis.set_xlim([-0.5, cols+0.5])
+        self.axis.set_ylim([-0.5, rows+0.5])
+
+        self.axis.set_xticks(np.arange(0, cols, 1))
+        self.axis.set_yticks(np.arange(0, rows, 1))
+
+        self.axis.grid(which='both', color='gray', linestyle='dotted', linewidth=0.5)
+
+        plt.gca().invert_yaxis()  # Invert y axis
+        plt.gca().xaxis.tick_top()  # Move x-axis to the top
 
     def save(self, file_name, speed):
         self.anim.save(file_name, "ffmpeg", fps=10 * speed, dpi=200),
@@ -175,17 +179,15 @@ class Animation:
         return self.patches + self.artists
 
     def animate_func(self, i):
-        pos = self.getState(i / 10, self.robot_path)
+        pos = self.getState(i, self.robot_path)
         p = (pos[0], pos[1])
         self.myRobot.center = p
         self.myRobot_name.set_position(p)
-        self.myRobot.set_facecolor(Colors[3])
+        self.myRobot.set_facecolor(COLORS[3])
         
-        self.myRobot_path.append(p)
-
 
         for agent_id, path in enumerate(self.paths):
-            pos = self.getState(i / 10, path)
+            pos = self.getState(i, path)
             p = (pos[0], pos[1])
             self.agents[agent_id].center = p
             self.agent_names[agent_id].set_position(p)
@@ -207,14 +209,12 @@ class Animation:
                     d2.set_facecolor("red")
                     print("COLLISIONE tra oggetti!!! ({}, {})".format(i, j))
 
-        self.draw_myRobot_path()
-
         return self.patches + self.artists
     
-    def draw_myRobot_path(self):
-        # Disegna myRobot_path solo una volta, dopo che tutti gli altri elementi sono stati disegnati
-        if len(self.myRobot_path) > 1:
-            self.axis.plot(*zip(*self.myRobot_path), color=Colors[4])
+    # def draw_myRobot_path(self):
+    #     # Disegna myRobot_path solo una volta, dopo che tutti gli altri elementi sono stati disegnati
+    #     if len(self.myRobot_path) > 1:
+    #         self.axis.plot(*zip(*self.myRobot_path), color=Colors[4])
   
     def getState(self, time, path):
       idx = 0

@@ -1,3 +1,4 @@
+from collections import deque
 import math
 import heapq
 from abc import ABC, abstractmethod
@@ -27,8 +28,6 @@ class Heuristic(ABC):
     def __call__(self, node):
         pass
 
-# -------------------------------------------------------------------------------- #
-
 # ---------------------------------- Euristiche ---------------------------------- #
 class DiagonalDistance(Heuristic):
     def __init__(self, grid, goal):
@@ -37,6 +36,7 @@ class DiagonalDistance(Heuristic):
         self.D = WEIGHT_CARDINAL_DIRECTION
         self.D2 = WEIGHT_DIAGONAL_DIRECTION
         self.goal = goal
+        self.x_goal, self.y_goal = get_coordinates(self.goal, self.col)
 
     def estimate(self, init):
         """
@@ -49,10 +49,9 @@ class DiagonalDistance(Heuristic):
         return: euristica secondo la formula diagonale
         """
         x_init, y_init = get_coordinates(init, self.col)
-        x_goal, y_goal = get_coordinates(self.goal, self.col)
 
-        dx = abs(x_init-x_goal)
-        dy = abs(y_init-y_goal)
+        dx = abs(x_init-self.x_goal)
+        dy = abs(y_init-self.y_goal)
         return self.D*(dx+dy) + (self.D2 - 2*self.D)*min(dx,dy)
 
     def __call__(self, init):
@@ -63,6 +62,7 @@ class ChebyshevDistance(Heuristic):
     def __init__(self, grid, goal,D):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
+        self.x_goal, self.y_goal = get_coordinates(self.goal, self.col)
         self.D = D
     
     def estimate(self, init):
@@ -73,10 +73,9 @@ class ChebyshevDistance(Heuristic):
         return: euristica secondo la formula diagonale
         """
         x_init, y_init = get_coordinates(init, self.col)
-        x_goal, y_goal = get_coordinates(self.goal, self.col)
 
-        dx = abs(x_init-x_goal)
-        dy = abs(y_init-y_goal)
+        dx = abs(x_init-self.x_goal)
+        dy = abs(y_init-self.y_goal)
         return self.D*(dx+dy) + (self.D2 - 2*self.D)*min(dx,dy)    
 
     def __call__(self, node):
@@ -86,6 +85,7 @@ class ManhattanDistance(Heuristic):
     def __init__(self, grid, goal,D):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
+        self.x_goal, self.y_goal = get_coordinates(self.goal, self.col)
         self.D = D
     
     def estimate(self, init):
@@ -100,8 +100,8 @@ class ManhattanDistance(Heuristic):
         x_init, y_init = get_coordinates(init, self.col)
         x_goal, y_goal = get_coordinates(self.goal, self.col)
 
-        dx = abs(x_init-x_goal)
-        dy = abs(y_init-y_goal)
+        dx = abs(x_init-self.x_goal)
+        dy = abs(y_init-self.y_goal)
 
         return self.D*(dx + dy)
 
@@ -113,6 +113,7 @@ class EuclideanDistance(Heuristic):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
         self.D = D
+        self.x_goal,self.y_goal = get_coordinates(self.goal, self.col)
     
     def estimate(self, init):
         """
@@ -125,106 +126,88 @@ class EuclideanDistance(Heuristic):
         """
 
         x_init, y_init = get_coordinates(init, self.col)
-        x_goal, y_goal = get_coordinates(self.goal, self.col)
-
-        dx = abs(x_init-x_goal)
-        dy = abs(y_init-y_goal)
+        dx = abs(x_init-self.x_goal)
+        dy = abs(y_init-self.y_goal)
 
         return self.D*math.sqrt(dx^2 + dy^2)
         
     def __call__(self, init):
         return self.estimate(init)
 
+# -------------------------------------------------------------------------------- #
 class HeuristicRelaxPath(Heuristic):
     def __init__(self, grid, goal):
         super().__init__(grid, goal)
-        self.distances = None
-        self.predecessors = None
-        self.estimates()
-
+        self.distances, self.predecessors = self.estimates()
+    
     def estimates(self):
         # Inizializzazione dei valori dei nodi
         distances = {node: float('inf') for node in self.grid.nodes}
         distances[self.goal] = 0
         predecessors = {node: None for node in self.grid.nodes}
-
-        # Inizializzazione della coda di priorità
         pq = [(0, self.goal)]
 
         while pq:
-            # Estrazione del nodo con la distanza minima
             current_distance, current_node = heapq.heappop(pq)
-
-            # Se la distanza estratta è maggiore della distanza attuale, ignorare il nodo
             if current_distance > distances[current_node]:
                 continue
 
             # Aggiornamento delle distanze dei nodi adiacenti
-            for neighbor,_ in self.grid.get_adj_list(current_node).items():
+            adj_list = self.grid.get_adj_list(current_node)
+            for neighbor,_ in adj_list.items():
                 distance = current_distance + self.grid.get_edge_weight(current_node, neighbor)
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
                     predecessors[neighbor] = current_node
                     heapq.heappush(pq, (distance, neighbor))
-        
-        self.__setattr__('distances',distances)
-        self.__setattr__('predecessors',predecessors)
+        return distances, predecessors
     
-    def return_path(self,starting_node, end_node, path=list()):
+    def return_path(self, starting_node, end_node):
+        path = []
         while starting_node != end_node:
             path.append(starting_node)
-            return self.return_path(self.predecessors[starting_node], end_node, path)
+            starting_node = self.predecessors[starting_node]
         path.append(end_node)
         return path
     
     def __call__(self, node):
         return self.distances[node]
     
-    def get_predecessors(self):
-        return self.predecessors
-    
-    def relaxed_path(self,node):
-        # Ricostruzione del percorso rilassato dal nodo corrente al nodo obiettivo
-        path = []
+    def relaxed_path(self, node):
+        """
+        Ricostruzione del percorso rilassato dal nodo corrente al nodo obiettivo
+        """
+        path = deque()
         while node != self.goal:
-            path.append(node)
+            path.appendleft(node)
             node = self.predecessors[node]
-        path.append(self.goal)
-        path.reverse()
-        return path
+        path.appendleft(self.goal)
+        return list(path)
+
 
 class BackwardDijkstra(Heuristic):
     def __init__(self, grid, goal):
         super().__init__(grid, goal)
-        self.distances = None
-        self.predecessors = None
-
+        self.distances, self.predecessors = self.estimates()
 
     def estimates(self):
-        # Inizializzazione dei valori dei nodi
         distances = {node: float('inf') for node in self.grid.nodes}
         distances[self.goal] = 0
-        self. predecessors = {node: None for node in self.grid.nodes}
-
-        # Inizializzazione della coda di priorità
+        predecessors = {node: None for node in self.grid.nodes}
         pq = [(0, self.goal)]
 
         while pq:
-            # Estrazione del nodo con la distanza minima
             current_distance, current_node = heapq.heappop(pq)
-
-            # Se la distanza estratta è maggiore della distanza attuale, ignorare il nodo
             if current_distance > distances[current_node]:
                 continue
-
-            # Aggiornamento delle distanze dei nodi adiacenti
-            for neighbor,_ in self.grid.get_adj_list(current_node).items():
+            adj_list = self.grid.get_adj_list(current_node)
+            for neighbor,_ in adj_list.items():
                 distance = current_distance + 1
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
                     heapq.heappush(pq, (distance, neighbor))
-        print(distances)
-        self.__setattr__('distances',distances)
-    
+        
+        return distances, predecessors
+
     def __call__(self, node):
         return self.distances[node]
