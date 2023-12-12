@@ -44,8 +44,7 @@ class Agents:
                     path.append(next_node)
                     current_node = next_node
                     break
-            else:
-                return None
+                
 
         return path
 
