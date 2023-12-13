@@ -6,7 +6,7 @@ import os
 # Definizione dei percorsi come costanti
 INPUT_PATH = os.path.join("benchmarks", "instances", "in.yaml")
 OUTPUT_PATH = os.path.join("benchmarks", "results", "out.yaml")
-GENERATOR_PATH = os.path.join("benchmarks", "instances", "generator.")
+GENERATOR_PATH = os.path.join("benchmarks", "instances", "generators.")
 
 # 1. Creo un oggetto parser
 __parser = argparse.ArgumentParser(
