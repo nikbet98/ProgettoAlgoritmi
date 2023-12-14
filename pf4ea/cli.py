@@ -48,6 +48,15 @@ __parser_gen.add_argument(
     help="Input file.",
     default=GENERATOR_PATH,
 )
+
+__parser_gen.add_argument(
+    "-seed",
+    "--seed",
+    type=int,
+    help="Seed per la generazione del problema.",
+    default=None,
+)
+
 __parser_gen.add_argument(
     "-s",
     "--save",
@@ -68,12 +77,18 @@ __parser_gen.add_argument(
     default=False,
 )
 
+__parser_gen.add_argument(
+    "--csv_output",
+    type=bool,
+    help="Salva i problemi generati e le relative soluzioni su un file di output in formato csv",
+    default=False,
+)
+
 # 3. Aggiungo un subparser per il comando "run"
 __parser_man = __subparsers.add_parser(
     "man", help="man help", formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 __parser_man.add_argument(
-    "-s",
     "--save",
     type=bool,
     help="Salva il problema generato su file.",

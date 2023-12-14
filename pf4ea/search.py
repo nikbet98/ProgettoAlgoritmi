@@ -175,3 +175,7 @@ class ReachGoal:
                     f"  * **Stati nella lista Closed:** {closed_str}\n"
                     f"  * **Totale stati generati:** {str(len(self.open) + len(self.closed))}\n"
                     f"  * **Numero azioni Wait:** {self.wait}\n")
+                    f" **Percentuale di nodi visitati:** {self.percentage_visited_nodes:.2f}%\n"
+            )
+            
+        

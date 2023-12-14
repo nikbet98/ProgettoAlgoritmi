@@ -144,7 +144,7 @@ def check_collision(
 
 
 def is_path_free(problem, node: int, time: int, predecessors: List[int]) -> bool:
-    while time <= problem.maximum_time:
+    while time < problem.maximum_time:
         next_node = predecessors[node]
         if is_free_collision(problem.agent_paths, node, next_node, time, problem.cols):
             if problem.is_goal(next_node):

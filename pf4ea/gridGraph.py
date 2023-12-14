@@ -1,5 +1,5 @@
 from typing import List, Dict, Set, Optional, Tuple
-
+from __main__ import seed
 import math
 import random
 import sys
@@ -23,6 +23,7 @@ class GridGraph:
         self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
         self.nodes: List[int] = list(range(0, self.size))
         self.adj_list: List[Dict[int, float]] = [{} for node in self.nodes]
+        self.self.num_obstacles = None
         self.generate_neighbors()
         self.generate_obstacles()
 
@@ -67,22 +68,22 @@ class GridGraph:
         """
     Genera gli ostacoli nella griglia in base alla percentuale di attraversabilità e di agglomerazione degli ostacoli.
     """
-        num_obstacles = self.calculate_num_obstacles()
-        if num_obstacles != 0:  # se il numero di ostacoli è nullo non tentare di generare gli ostacoli
-            obstacles = self.build_obstacles(num_obstacles)
+        self.num_obstacles = self.calculate_self.num_obstacles()
+        if self.num_obstacles != 0:  # se il numero di ostacoli è nullo non tentare di generare gli ostacoli
+            obstacles = self.build_obstacles(self.num_obstacles)
             for node in obstacles:
                 self.set_as_obstacle(node)
 
     def calculate_num_obstacles(self) -> int:
         return round(self.size * (1 - self.traversability_ratio))
 
-    def build_obstacles(self, num_obstacles: int) -> Set[int]:
+    def build_obstacles(self) -> Set[int]:
         """
     Genera gli ostacoli nella griglia in base alla percentuale di agglomerazione degli ostacoli.
     """
         obstacles: Set[int] = set()
-        cluster_size = self.calculate_cluster_size(num_obstacles)
-        num_clusters = self.calculate_num_clusters(num_obstacles, cluster_size)
+        cluster_size = self.calculate_cluster_size(self.num_obstacles)
+        num_clusters = self.calculate_num_clusters(self.num_obstacles, cluster_size)
         for i in range(num_clusters):
             start = self.find_start_node(obstacles)
             if start is not None:
@@ -90,15 +91,15 @@ class GridGraph:
                 obstacles.update(cluster)
         return obstacles
 
-    def calculate_cluster_size(self, num_obstacles: int) -> int:
+    def calculate_cluster_size(self) -> int:
         if self.obstacle_agglomeration_ratio == 0:
             return 1
-        return round(num_obstacles * self.obstacle_agglomeration_ratio)
+        return round(self.num_obstacles * self.obstacle_agglomeration_ratio)
 
-    def calculate_num_clusters(self, num_obstacles: int, cluster_size: int) -> int:
+    def calculate_num_clusters(self, cluster_size: int) -> int:
         if cluster_size == 1:
-            return num_obstacles
-        return round(num_obstacles / cluster_size)
+            return self.num_obstacles
+        return round(self.num_obstacles / cluster_size)
 
     def find_start_node(self, obstacles: Set[int]) -> int:
         """
@@ -108,6 +109,7 @@ class GridGraph:
                      node not in obstacles and self.are_neighbors_obstacle_free(node, obstacles)]
         if not available:
             return None
+        random.seed(seed)
         start = random.choice(available)
         return start
 
@@ -133,6 +135,7 @@ class GridGraph:
                     break
             if not available:
                 return cluster
+            random.seed(seed)
             next_node = random.sample(available, 1)[0]
             cluster.append(next_node)
         if len(cluster) == dim_cluster:

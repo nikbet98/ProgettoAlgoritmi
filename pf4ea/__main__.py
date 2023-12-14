@@ -1,6 +1,7 @@
 # todo salva le istanza del problema -s da CLI
 import csv
 import cProfile
+import os
 import pickle
 import time
 
@@ -21,11 +22,7 @@ import cli
 
 
 args = cli.get_args()
-
-# file = "./csv/100x100_08_02_10_100.csv"
-# file = "./csv/10x10_08_02_3_20 .csv"
-# file = "./csv/25x25_06_05_10_50.csv"
-# file = "./csv/10x10_08_02_3_20.csv"
+seed = args.seed
 
 
 def generate_problems(configurations):
@@ -51,6 +48,13 @@ def solve_problems(problems,heuristic_type, use_variant=False):
             )
             visualizer = Animation(problem.grid, problem.agent_paths, solver.path)
             visualizer.show()
+        
+            if args.csv_output:
+                file_name = os.path.basename(args.file)
+                repository.save_report_csv(
+                    problem, solver, heuristic, problem_time, search_time, heuristic_time,file_name
+                )
+
         except Exception as e:
             print(f"Errore durante la risoluzione del problema: {e}")
 
@@ -73,62 +77,24 @@ def main():
     except Exception as e:
         print(f"Si è verificato un errore: {e}")
 
-
-
-# def main():
-#     # leggiamo la configurazione da file
-#     configs = repository.load_csv(file)
-
-#     pf4ea, generating_instance_time = generate_instance(config)
-#     # # salvo il problema file
-#     repository.write_problem(pf4ea)
-#     # carico il problema da file
-#     # pf4ea = repository.read_problem("10x10_0.8_0.2_3_20_74_46")
-#     # calcoliamo l'euristica
-#     h, heuristic_time = generate_heuristic(pf4ea, 1)
-#     # troviamo la soluzione
-#     result = search_solution(pf4ea, h, 1)
-
-#     # salva il risultato (se ho generato tutto da 0)
-#     save_report(result)
-#     # salva il risultato (se ho caricato il problema)
-#     # save_result(pf4ea, h, [0, heuristic_time, resolution_time], sol,
-#     #             get_path_cost(sol, pf4ea.grid), open_list, closed_list, wait)
-#     print(pf4ea.grid)
-#     graphPlotter(pf4ea.grid)
-
-#     animation = Animation(pf4ea.grid, pf4ea.agent_paths, sol)
-#     animation.show()
-
-
-# repository.write_problem(pf4ea,h)
-
-# problem, h = repository.read_problem("10x10_0.8_0.2_3_20_79_19")
-
-
 def generate_instance(config):
-    start_time = time.time()
+    start_time = time.perf_counter()
     # Converte le stringhe numeriche in interi o float
     problem_instance = Problem(**config)
-    elapsed_time = time.time() - start_time
+    elapsed_time = time.perf_counter() - start_time
     return problem_instance, elapsed_time
 
 
 def generate_heuristic(problem: Problem, heuristic_type):
-    heuristic_classes = {
-        "h1": DiagonalDistance,
-        "h2": HeuristicRelaxPath,
-    }
 
-    if heuristic_type not in heuristic_classes:
+    if heuristic_type not in HEURISTIC_CLASSES:
         raise ValueError(f"Unsupported heuristic type: {heuristic_type}")
 
-    start_time = time.time()
-    heuristic = heuristic_classes[heuristic_type](problem.grid, problem.goal)
-    elapsed_time = time.time() - start_time
+    start_time = time.perf_counter()
+    heuristic = HEURISTIC_CLASSES[heuristic_type](problem.grid, problem.goal)
+    elapsed_time = time.perf_counter() - start_time
 
     return heuristic, elapsed_time
-
 
 if __name__ == "__main__":
     main()

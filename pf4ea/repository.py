@@ -8,10 +8,14 @@ from utils import get_path_cost
 # Ottengo il percorso della directory padre
 PARENT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INSTANCES_DIRECTORY = os.path.join(PARENT_DIRECTORY, "benchmarks", "instances")
-RESULTS_DIRECTORY = os.path.join(PARENT_DIRECTORY, "benchmarks", "results")
+RESULTS_DIRECTORY = os.path.join(PARENT_DIRECTORY, "benchmarks", "report")
 
 
 def load_configurations(file):
+    # If the file path doesn't exist, assume it's just a file name and look for it in the 'benchmarks/generators/' directory
+    if not os.path.exists(file):
+        file = os.path.join('benchmarks', 'generators', file)
+
     with open(file, mode="r") as csv_file:
         configurations = []
         reader = csv.DictReader(csv_file)
@@ -19,9 +23,9 @@ def load_configurations(file):
             config = {}
             for k, v in row.items():
                 config[k] = v
-                if k in ['rows', 'cols', 'num_agents', 'maximum_time']:
+                if k in ["rows", "cols", "num_agents", "maximum_time"]:
                     config[k] = int(v)
-                elif k in ['traversability_ratio', 'obstacle_agglomeration_ratio']:
+                elif k in ["traversability_ratio", "obstacle_agglomeration_ratio"]:
                     float_value = float(v)
                     if 0 <= float_value <= 1:
                         config[k] = float_value
@@ -32,6 +36,7 @@ def load_configurations(file):
     print(f"Configurazioni caricate correttamente da {file}.")
     return configurations
 
+
 def load_problem(name):
     file_path = os.path.join(INSTANCES_DIRECTORY, f"{name}.pkl")
     with open(file_path, "rb") as to_read:
@@ -39,12 +44,14 @@ def load_problem(name):
     print(f"Problema {name} caricato correttamente.")
     return out
 
+
 def read_problem(name):
     file_path = os.path.join(INSTANCES_DIRECTORY, f"{name}.pkl")
     with open(file_path, "rb") as to_read:
         out = pickle.load(to_read)
     print(f"Problema {name} caricato correttamente.")
     return out
+
 
 def save_problem(problem):
     file_name = generate_name(problem)
@@ -58,9 +65,10 @@ def save_problem(problem):
 
     print(f"Problema salvato correttamente nel file {file_path}.")
 
+
 def save_report(problem, solver, heuristic, problem_time, search_time, heuristic_time):
-    name = f"{generate_name(problem)}_{get_h_type(heuristic)}.md"
-    file_path = os.path.join(RESULTS_DIRECTORY, name)
+    file_name = f"{generate_name(problem)}_{get_h_type(heuristic)}.md"
+    file_path = os.path.join(RESULTS_DIRECTORY, file_name)
 
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{problem}")
@@ -72,6 +80,65 @@ def save_report(problem, solver, heuristic, problem_time, search_time, heuristic
 
     print(f"Report salvato correttamente nel file {file_path}.")
 
+
+def save_report_csv(
+    problem, solver, heuristic, problem_time, search_time, heuristic_time, input_file_name
+):  
+    input_file_name = input_file_name.replace('input_', '') if input_file_name.startswith('input_') else input_file_name
+
+    output_file_name = 'output_' + input_file_name
+    file_path = os.path.join(RESULTS_DIRECTORY, output_file_name)
+
+    fieldnames = [
+        "rows",
+        "cols",
+        "traversability_ratio",
+        "obstacle_agglomeration_ratio",
+        "num_agents",
+        "maximum_time",
+        "init",
+        "goal",
+        "h_type",
+        "path_length",
+        "path_cost",
+        "tot_states",
+        "percentage_visited_nodes",
+        "wait",
+        "problem_time",
+        "heuristic_time",
+        "search_time",
+    ]
+
+    report_data = {
+        "rows": problem.grid.rows,
+        "cols": problem.grid.cols,
+        "traversability_ratio": problem.grid.traversability_ratio,
+        "obstacle_agglomeration_ratio": problem.grid.obstacle_agglomeration_ratio,
+        "num_agents": problem.num_agents,
+        "maximum_time": problem.maximum_time,
+        "init": problem.init,
+        "goal": problem.goal,
+        "h_type": get_h_type(heuristic),
+        "path_length": solver.solution_length,
+        "path_cost": get_path_cost(solver.solution, problem.grid),
+        "tot_states": solver.closed_list_size,
+        "percentage_visited_nodes": solver.percentage_visited_nodes,
+        "wait": solver.wait,
+        "problem_time": problem_time,
+        "heuristic_time": heuristic_time,
+        "search_time": search_time,
+    }
+
+    with open(file_path, "a", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames)
+        if file.tell() == 0:
+            writer.writeheader()
+
+        writer.writerow(report_data)
+
+    print(f"Report salvato correttamente nel file {file_path}.")
+
+
 def performance_to_string(problem_time, heuristic_time, search_time):
     performance_string = (
         f"## PERFORMANCE\n"
@@ -81,11 +148,10 @@ def performance_to_string(problem_time, heuristic_time, search_time):
     )
     return performance_string
 
+
 def generate_name(problem):
     return f"{problem.grid.rows}x{problem.grid.cols}_{problem.grid.traversability_ratio}_{problem.grid.obstacle_agglomeration_ratio}_{problem.num_agents}_{problem.maximum_time}_{problem.init}_{problem.goal}"
 
+
 def get_h_type(heuristic):
     return type(heuristic).__name__
-
-
-

@@ -85,17 +85,18 @@ class InputHandler:
 
     def get_search_algorithm(self):
         search_algorithms = ['Reach Goal', 'Reach Goal variante']
-        numbered_options = ["{}. {}".format(i+1, option) for i, option in enumerate(search_algorithms)]
+        numbered_options = [f"{i+1}. {option}" for i, option in enumerate(search_algorithms)]
         print("\n".join(numbered_options))
         choice = self.get_input("Scegli un algoritmo di ricerca: ", int, lambda x: 1 <= x <= len(numbered_options))
         return choice == 2
 
     def get_heuristic_type(self, use_variant):
-        if not use_variant:
-            heuristic_types = list(HEURISTIC_CLASSES.keys())[0:4]
-        else:
-            heuristic_types = ['H1', 'H2', 'H3', 'H4']  # sostituisci con le euristiche reali per 'Reach Goal variante'
-        numbered_options = ["{}. {}".format(i+1, option) for i, option in enumerate(heuristic_types)]
+        heuristic_types = list(HEURISTIC_CLASSES)
+        if use_variant:
+            print("La variante di Reach Goal l'euristica del percorso rilassato")
+            return heuristic_types[4].key()
+
+        numbered_options = [f"{i+1}. {option}" for i, option in enumerate(heuristic_types[:4])]
         print("\n".join(numbered_options))
         choice = self.get_input("Scegli un'euristica: ", int, lambda x: 1 <= x <= len(numbered_options))
-        return heuristic_types[choice - 1]
+        return heuristic_types[choice - 1].key()
