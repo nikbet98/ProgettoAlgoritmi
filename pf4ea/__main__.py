@@ -29,7 +29,7 @@ def generate_problems(configurations):
     problems = []
     for config in configurations:
         try:
-            problem, problem_time = generate_instance(config)
+            problem, problem_time= generate_instance(config)
             if args.save:
                 repository.save_problem(problem)
             problems.append((problem, problem_time))
@@ -37,7 +37,8 @@ def generate_problems(configurations):
             print(f"Errore durante la generazione del problema: {e}")
     return problems
 
-def solve_problems(problems,heuristic_type, use_variant=False):
+
+def solve_problems(problems, heuristic_type, use_variant=False):
     for problem, problem_time in problems:
         try:
             heuristic, heuristic_time = generate_heuristic(problem, heuristic_type)
@@ -48,7 +49,7 @@ def solve_problems(problems,heuristic_type, use_variant=False):
             )
             visualizer = Animation(problem.grid, problem.agent_paths, solver.path)
             visualizer.show()
-        
+
             if args.csv_output:
                 file_name = os.path.basename(args.file)
                 repository.save_report_csv(
@@ -58,12 +59,14 @@ def solve_problems(problems,heuristic_type, use_variant=False):
         except Exception as e:
             print(f"Errore durante la risoluzione del problema: {e}")
 
+
 def main():
     if args.command == "man":
         handler = InputHandler()
     command_dispatch = {
-        "gen": lambda: solve_problems(problems=generate_problems(repository.load_configurations(args.file)),heuristic_type = args.heuristic,use_variant=args.variant),
-        "man": lambda: solve_problems(generate_problems([handler.config]),handler.heuristic_type,handler.use_variant),
+        "gen": lambda: solve_problems(problems=generate_problems(repository.load_configurations(args.file)),
+                                      heuristic_type=args.heuristic, use_variant=args.variant),
+        "man": lambda: solve_problems(generate_problems([handler.config]), handler.heuristic_type, handler.use_variant),
         "run": lambda: solve_problems(repository.load_problem(args.file)),
     }
 

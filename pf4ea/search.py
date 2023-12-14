@@ -6,7 +6,6 @@ from utils import PriorityQueue, expand, is_free_collision, is_path_free
 from gridGraph import GridGraph
 
 
-
 class ReachGoal:
     def __init__(self, problem, heuristic, use_variant=False):
         self.problem = problem
@@ -30,13 +29,13 @@ class ReachGoal:
         elapsed_time = time.time() - start_time
         return solution, elapsed_time
 
-
     """
     #EFFICIENZA
     list.reverse() ha complessità O(n)
     con deque  (coda a due estremità) gli elementi li aggiungiamo in testa
     con tempo costante O(1). Non c'è bisogno di invertire la coda alla fine.
     """
+
     def ReconstructPath(self, init: State, goal: State):
         path = deque([goal.node])
         current_state = goal
@@ -48,7 +47,6 @@ class ReachGoal:
                 wait += 1
             current_state = next_state
         return list(path), wait
-
 
     def _ReachGoal(self):
         """
@@ -97,7 +95,8 @@ class ReachGoal:
                     child_node = child_state.node
 
                     # check if the path is traversable
-                    traversable = is_free_collision(self.problem.agent_paths, current_node, child_node, time, self.problem.cols)
+                    traversable = is_free_collision(self.problem.agent_paths, current_node, child_node, time,
+                                                    self.problem.cols)
 
                     if traversable:
                         if child_state not in self.open:
@@ -113,7 +112,7 @@ class ReachGoal:
 
         wait = 0
 
-        f_score = lambda state: state.path_cost+ self.heuristic(state.node)
+        f_score = lambda state: state.path_cost + self.heuristic(state.node)
 
         init = State(self.problem.init, 0)
         self.open = PriorityQueue(init, f=f_score)
@@ -149,7 +148,8 @@ class ReachGoal:
                     current_node = child_state.node
                     child_node = current_state.node
                     # check if the path is traversable
-                    traversable = is_free_collision(self.problem.agent_paths, current_node, child_node, time, self.problem.cols)
+                    traversable = is_free_collision(self.problem.agent_paths, current_node, child_node, time,
+                                                    self.problem.cols)
 
                     if traversable:
                         if child_state not in self.open:
@@ -159,15 +159,14 @@ class ReachGoal:
                             self.open.add(child_state)
         return None, len(self.open), len(self.closed), wait
 
-
     def __str__(self):
         if self.path is None or self.open is None or self.closed is None or self.wait is None:
             return "La ricerca non è stata ancora eseguita."
         else:
             # Convert self.closed to a list and sort it by time
             closed_sorted = sorted(list(self.closed), key=lambda state: state.time)
-            closed_str = [f"<{str(state)}, {self.f_score(state):.2f}>" for state in closed_sorted]            
-            return  (f"## RISULTATO DELLA RICERCA\n"
+            closed_str = [f"<{str(state)}, {self.f_score(state):.2f}>" for state in closed_sorted]
+            return (f"## RISULTATO DELLA RICERCA\n"
                     f"  * **Percorso trovato:** {self.path}\n"
                     f"  * **Lunghezza del percorso trovato:** {len(self.path)}\n"
                     f"  * **Costo del percorso:** {self.path_cost: .2f}\n"
@@ -177,8 +176,14 @@ class ReachGoal:
                     f"  * **Numero azioni Wait:** {self.wait}\n"
                     f" **Percentuale di griglia visitata:** {self.calculate_visited():.2f}\n")
 
-
     def calculate_visited(self):
         return len(self.closed) / (self.problem._get_size() - self.problem.num_obstacles) * 100
-            
-        
+
+    def unique_node_visited(self):
+        nodes = list()
+        for state in self.closed:
+            node = state.node
+            if node not in nodes:
+                nodes.append(node)
+
+        return nodes

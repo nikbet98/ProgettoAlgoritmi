@@ -23,7 +23,7 @@ class GridGraph:
         self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
         self.nodes: List[int] = list(range(0, self.size))
         self.adj_list: List[Dict[int, float]] = [{} for node in self.nodes]
-        self.self.num_obstacles = None
+        self.num_obstacle = self.calculate_num_obstacles()
         self.generate_neighbors()
         self.generate_obstacles()
 
@@ -68,9 +68,8 @@ class GridGraph:
         """
     Genera gli ostacoli nella griglia in base alla percentuale di attraversabilità e di agglomerazione degli ostacoli.
     """
-        self.num_obstacles = self.calculate_self.num_obstacles()
-        if self.num_obstacles != 0:  # se il numero di ostacoli è nullo non tentare di generare gli ostacoli
-            obstacles = self.build_obstacles(self.num_obstacles)
+        if self.num_obstacle != 0:  # se il numero di ostacoli è nullo non tentare di generare gli ostacoli
+            obstacles = self.build_obstacles()
             for node in obstacles:
                 self.set_as_obstacle(node)
 
@@ -82,8 +81,8 @@ class GridGraph:
     Genera gli ostacoli nella griglia in base alla percentuale di agglomerazione degli ostacoli.
     """
         obstacles: Set[int] = set()
-        cluster_size = self.calculate_cluster_size(self.num_obstacles)
-        num_clusters = self.calculate_num_clusters(self.num_obstacles, cluster_size)
+        cluster_size = self.calculate_cluster_size(self.num_obstacle)
+        num_clusters = self.calculate_num_clusters(self.num_obstacle, cluster_size)
         for i in range(num_clusters):
             start = self.find_start_node(obstacles)
             if start is not None:
