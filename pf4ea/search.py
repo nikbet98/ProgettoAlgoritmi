@@ -177,4 +177,13 @@ class ReachGoal:
                     f"  * **Numero azioni Wait:** {self.wait}\n")
 
     def calculate_visited(self):
-        return (self.closed / (self.problem.grid.get_size() - self.problem.num_obstacle))*100
+        return (len(self.unique_node_visited()) / (self.problem.grid.get_size() - self.problem.grid.num_obstacle)) * 100
+
+    def unique_node_visited(self):
+        nodes = list()
+        for state in self.closed:
+            node = state.node
+            if node not in nodes:
+                nodes.append(node)
+
+        return nodes

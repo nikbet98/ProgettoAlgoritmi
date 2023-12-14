@@ -62,7 +62,7 @@ def save_problem(problem):
     print(f"Problema salvato correttamente nel file {file_path}.")
 
 
-def save_report(problem, solver, heuristic, problem_time, search_time, heuristic_time, problem_mem_usage, h_mem_usage, search_mem_usage):
+def save_report(problem, solver, heuristic, problem_time, search_time, heuristic_time):
     name = f"{generate_name(problem)}_{get_h_type(heuristic)}.md"
     file_path = os.path.join(RESULTS_DIRECTORY, name)
 
@@ -72,21 +72,17 @@ def save_report(problem, solver, heuristic, problem_time, search_time, heuristic
         file.write("\n<!-- ************************** -->\n")
         file.write(f"{solver}")
         file.write("\n<!-- ************************** -->\n")
-        file.write(performance_to_string(problem_time, heuristic_time, search_time, problem_mem_usage, h_mem_usage, search_mem_usage))
+        file.write(performance_to_string(problem_time, heuristic_time, search_time))
 
     print(f"Report salvato correttamente nel file {file_path}.")
 
 
-def performance_to_string(problem_time, heuristic_time, search_time, problem_mem_usage, h_mem_usage, search_mem_usage):
+def performance_to_string(problem_time, heuristic_time, search_time):
     performance_string = (
         f"## PERFORMANCE\n"
         f"* Tempo per la generazione dell'istanza: {problem_time:.10e} sec\n"
         f"* Tempo per la generazione dell'euristica: {heuristic_time:.10e} sec\n"
         f"* Tempo per la ricerca della soluzione: {search_time:.10e} sec\n"
-        f"* Picco memoria nella generazione del problema: {problem_mem_usage} Mb\n"
-        f"* Picco memoria nella generazione dell'heuristica: {h_mem_usage} Mb\n"
-        f"* Picco memoria nella ricerca della soluzione: {search_mem_usage} Mb\n"
-
     )
     return performance_string
 
