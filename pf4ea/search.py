@@ -174,10 +174,10 @@ class ReachGoal:
                     f"  * **Stati nella lista Closed:** {closed_str}\n"
                     f"  * **Totale stati generati:** {str(len(self.open) + len(self.closed))}\n"
                     f"  * **Numero azioni Wait:** {self.wait}\n"
-                    f" **Percentuale di griglia visitata:** {self.calculate_visited():.2f}\n")
-
+                    f" **Percentuale di griglia visitata:** {self.calculate_visited():.2f}\n"
+                    f" **Nodi unici visitati:** {len(self.unique_node_visited())}\n")
     def calculate_visited(self):
-        return len(self.closed) / (self.problem._get_size() - self.problem.num_obstacles) * 100
+        return len(self.closed) / (self.problem.grid.get_size() - self.problem.grid.num_obstacles) * 100
 
     def unique_node_visited(self):
         nodes = list()

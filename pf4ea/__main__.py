@@ -4,6 +4,7 @@ import cProfile
 import os
 import pickle
 import time
+import random
 
 from agents import Agents
 from gridGraph import GridGraph
@@ -20,14 +21,34 @@ from input_handler import InputHandler
 import repository
 import cli
 
+HEURISTIC_CLASSES = {
+    "h1": DiagonalDistance,
+    "h2": ChebyshevDistance,
+    "h3": ManhattanDistance,
+    "h4": EuclideanDistance,
+    "h5": HeuristicRelaxPath,
+}
+
 args = cli.get_args()
 
-os.environ['SEED'] = str(args.seed) if args.command and args.seed is not None else 'None'
-
+if args.command == "gen":
+    os.environ['SEED'] = str(args.seed) if args.seed is not None else 'None'
+else:
+    os.environ['SEED'] = random.randint(0, 1000)
 
 def generate_problems(configurations):
     problems = []
     for config in configurations:
+
+        if args.command == "gen":
+            if not args.seed:
+                os.environ['SEED'] = str(random.randint(0, 1000))
+            else:
+                os.environ['SEED'] = str(args.seed)
+        else:
+            os.environ['SEED'] = str(random.randint(0, 1000))
+
+
         try:
             problem, problem_time= generate_instance(config)
             if args.save:
@@ -50,7 +71,7 @@ def solve_problems(problems, heuristic_type, use_variant=False):
             visualizer = Animation(problem.grid, problem.agent_paths, solver.path)
             visualizer.show()
 
-            if args.csv_output:
+            if args.command == "gen" and args.csv_output:
                 file_name = os.path.basename(args.file)
                 repository.save_report_csv(
                     problem, solver, heuristic, problem_time, search_time, heuristic_time,file_name
@@ -82,7 +103,6 @@ def main():
 
 def generate_instance(config):
     start_time = time.perf_counter()
-    # Converte le stringhe numeriche in interi o float
     problem_instance = Problem(**config)
     elapsed_time = time.perf_counter() - start_time
     return problem_instance, elapsed_time

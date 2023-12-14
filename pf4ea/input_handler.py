@@ -1,5 +1,14 @@
-from heuristic import HEURISTIC_CLASSES
 
+from heuristic import ChebyshevDistance, DiagonalDistance, EuclideanDistance, HeuristicRelaxPath, ManhattanDistance
+
+
+HEURISTIC_CLASSES = {
+    "h1": DiagonalDistance,
+    "h2": ChebyshevDistance,
+    "h3": ManhattanDistance,
+    "h4": EuclideanDistance,
+    "h5": HeuristicRelaxPath,
+}
 
 class InputHandler:
     def __init__(self):
@@ -94,9 +103,9 @@ class InputHandler:
         heuristic_types = list(HEURISTIC_CLASSES)
         if use_variant:
             print("La variante di Reach Goal l'euristica del percorso rilassato")
-            return heuristic_types[4].key()
+            return heuristic_types[4]
 
         numbered_options = [f"{i+1}. {option}" for i, option in enumerate(heuristic_types[:4])]
         print("\n".join(numbered_options))
         choice = self.get_input("Scegli un'euristica: ", int, lambda x: 1 <= x <= len(numbered_options))
-        return heuristic_types[choice - 1].key()
+        return heuristic_types[choice - 1]

@@ -9,14 +9,6 @@ WEIGHT_CARDINAL_DIRECTION = 1
 WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)
 
 
-HEURISTIC_CLASSES = {
-    "h1": "DiagonalDistance",
-    "h2": "ChebyshevDistance",
-    "h3": "ManhattanDistance",
-    "h4": "EuclideanDistance",
-    "h5": "HeuristicRelaxPath",
-    "h6": "BackwardDijkstra2"
-}
 
 class Heuristic(ABC):
 
