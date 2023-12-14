@@ -1,9 +1,10 @@
 import random
+import os 
 from typing import List, Optional
 from utils import is_free_collision
 from heuristic import *
 from gridGraph import GridGraph
-from __main__ import seed
+
 
 class Agents:
     def __init__(self, max_time: int, num_paths: int):
@@ -12,7 +13,7 @@ class Agents:
         self.num_paths = num_paths
 
     def generate_paths(self, grid: GridGraph, available_nodes: List[int]) -> List[List[int]]:
-        random.seed(seed)
+        random.seed(os.getenv("SEED"))
         random.shuffle(available_nodes)
         cols = grid.get_dim()[1]
 
@@ -30,7 +31,7 @@ class Agents:
     def _generate_single_path(self, grid: GridGraph, available_nodes: List[int], cols: int) -> Optional[List[int]]:
         current_node = available_nodes.pop()
         path = [current_node]
-        random.seed(seed)
+        random.seed(os.getenv("SEED"))
         agent_path_duration = random.randint(1, self.max_time)
 
         for time in range(agent_path_duration):

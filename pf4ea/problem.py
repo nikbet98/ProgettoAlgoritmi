@@ -1,10 +1,9 @@
 from typing import List, Tuple, Optional
-from __main__ import seed
 import random
+import os
 from gridGraph import GridGraph
 from agents import Agents
 
-random.seed(seed)
 
 class Problem:
     def __init__(
@@ -25,7 +24,7 @@ class Problem:
 
         self.agents = Agents(maximum_time, num_agents)
 
-        random.seed(seed)
+        random.seed(os.getenv("SEED"))
         init, goal = random.sample(empty_nodes, 2)
 
         self.cols = cols

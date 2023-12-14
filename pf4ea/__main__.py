@@ -20,9 +20,9 @@ from input_handler import InputHandler
 import repository
 import cli
 
-
 args = cli.get_args()
-seed = args.seed
+
+os.environ['SEED'] = str(args.seed) if args.command and args.seed is not None else 'None'
 
 
 def generate_problems(configurations):

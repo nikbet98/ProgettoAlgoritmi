@@ -174,8 +174,11 @@ class ReachGoal:
                     f"  * **Stati nella lista self.open:** {self.open}\n"
                     f"  * **Stati nella lista Closed:** {closed_str}\n"
                     f"  * **Totale stati generati:** {str(len(self.open) + len(self.closed))}\n"
-                    f"  * **Numero azioni Wait:** {self.wait}\n")
-                    f" **Percentuale di nodi visitati:** {self.percentage_visited_nodes:.2f}%\n"
-            )
+                    f"  * **Numero azioni Wait:** {self.wait}\n"
+                    f" **Percentuale di griglia visitata:** {self.calculate_visited():.2f}\n")
+
+
+    def calculate_visited(self):
+        return len(self.closed) / (self.problem._get_size() - self.problem.num_obstacles) * 100
             
         

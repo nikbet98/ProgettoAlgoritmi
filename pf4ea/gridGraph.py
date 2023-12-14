@@ -1,5 +1,5 @@
 from typing import List, Dict, Set, Optional, Tuple
-from __main__ import seed
+import os
 import math
 import random
 import sys
@@ -109,7 +109,7 @@ class GridGraph:
                      node not in obstacles and self.are_neighbors_obstacle_free(node, obstacles)]
         if not available:
             return None
-        random.seed(seed)
+        random.seed(os.getenv("SEED"))
         start = random.choice(available)
         return start
 
@@ -135,7 +135,7 @@ class GridGraph:
                     break
             if not available:
                 return cluster
-            random.seed(seed)
+            random.seed(os.getenv("SEED"))
             next_node = random.sample(available, 1)[0]
             cluster.append(next_node)
         if len(cluster) == dim_cluster:
