@@ -1,20 +1,30 @@
 from collections import deque
 import math
 import heapq
+import time
 from abc import ABC, abstractmethod
 from utils import get_coordinates
-
-# costanti
-WEIGHT_CARDINAL_DIRECTION = 1
-WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)
+from costants import *
 
 
+class HeuristicFactory:
+    @staticmethod
+    def create_heuristic(heuristic_type, problem,HEURISTIC_CLASSES):
+        if heuristic_type not in HEURISTIC_CLASSES:
+            raise ValueError(f"Unsupported heuristic type: {heuristic_type}")
+
+        start_time = time.process_time()
+        heuristic_instance = HEURISTIC_CLASSES[heuristic_type](problem.grid, problem.goal)
+        heuristic_instance.execution_time = time.process_time() - start_time
+
+        return heuristic_instance
 
 class Heuristic(ABC):
 
     def __init__(self, grid, goal):
         self.grid = grid
         self.goal = goal
+        self.execution_time = None
 
     @abstractmethod
     def __call__(self, node):

@@ -14,7 +14,7 @@ RESULTS_DIRECTORY = os.path.join(PARENT_DIRECTORY, "benchmarks", "report")
 def load_configurations(file):
     # If the file path doesn't exist, assume it's just a file name and look for it in the 'benchmarks/generators/' directory
     if not os.path.exists(file):
-        file = os.path.join('benchmarks', 'generators', file)
+        file = os.path.join("benchmarks", "generators", file)
 
     with open(file, mode="r") as csv_file:
         configurations = []
@@ -66,7 +66,7 @@ def save_problem(problem):
     print(f"Problema salvato correttamente nel file {file_path}.")
 
 
-def save_report(problem, solver, heuristic, problem_time, search_time, heuristic_time):
+def save_report(problem, heuristic, result):
     file_name = f"{generate_name(problem)}_{get_h_type(heuristic)}.md"
     file_path = os.path.join(RESULTS_DIRECTORY, file_name)
 
@@ -74,19 +74,23 @@ def save_report(problem, solver, heuristic, problem_time, search_time, heuristic
         file.write(f"{problem}")
         file.write(f"{problem.grid.obstacles_to_string()}")
         file.write("\n<!-- ************************** -->\n")
-        file.write(f"{solver}")
+        file.write(f"{result}")
         file.write("\n<!-- ************************** -->\n")
-        file.write(performance_to_string(problem_time, heuristic_time, search_time))
+        file.write(
+            performance_to_string(problem, heuristic, result)
+        )
 
     print(f"Report salvato correttamente nel file {file_path}.")
 
 
-def save_report_csv(
-    problem, solver, heuristic, problem_time, search_time, heuristic_time, input_file_name
-):  
-    input_file_name = input_file_name.replace('input_', '') if input_file_name.startswith('input_') else input_file_name
+def save_report_csv(problem, heuristic, result):
+    input_file_name = (
+        input_file_name.replace("input_", "")
+        if input_file_name.startswith("input_")
+        else input_file_name
+    )
 
-    output_file_name = 'output_' + input_file_name
+    output_file_name = "output_" + input_file_name
     file_path = os.path.join(RESULTS_DIRECTORY, output_file_name)
 
     fieldnames = [
@@ -108,6 +112,11 @@ def save_report_csv(
         "problem_time",
         "heuristic_time",
         "search_time",
+        "mem_grid",
+        "mem_heuristic",
+        "mem_open",
+        "mem_closed",
+        "mem_path",
     ]
 
     report_data = {
@@ -120,15 +129,15 @@ def save_report_csv(
         "init": problem.init,
         "goal": problem.goal,
         "h_type": get_h_type(heuristic),
-        "path_length": len(solver.path),
-        "path_cost": get_path_cost(solver.path, problem.grid),
-        "tot_states": len(solver.closed)+len(solver.open),
-        "percentage_visited_nodes": solver.calculate_visited(),
-        "unique_node_visited": len(solver.unique_node_visited()),
-        "wait": solver.wait,
-        "problem_time": problem_time,
-        "heuristic_time": heuristic_time,
-        "search_time": search_time,
+        "path_length": len(result.path),
+        "path_cost": get_path_cost(result.path, problem.grid),
+        "tot_states": len(result.closed) + len(result.open),
+        "percentage_visited_nodes": result.percentage_visited_nodes,
+        "unique_node_visited": len(result.num_unique_node_visited),
+        "wait": result.wait,
+        "problem_time": problem.execution_time,
+        "heuristic_time": heuristic.execution_time,
+        "search_time": result.execution_time,
     }
 
     with open(file_path, "a", encoding="utf-8", newline="") as file:
@@ -141,14 +150,24 @@ def save_report_csv(
     print(f"Report salvato correttamente nel file {file_path}.")
 
 
-def performance_to_string(problem_time, heuristic_time, search_time):
+def performance_to_string(problem, heuristic, result):
     performance_string = (
         f"## PERFORMANCE\n"
-        f"* Tempo per la generazione dell'istanza: {problem_time:.10e} sec\n"
-        f"* Tempo per la generazione dell'euristica: {heuristic_time:.10e} sec\n"
-        f"* Tempo per la ricerca della soluzione: {search_time:.10e} sec\n"
+        f"* Tempo per la generazione dell'istanza: {problem.execution_time:.10e} sec\n"
+        f"* Tempo per la generazione dell'euristica: {heuristic.execution_time:.10e} sec\n"
+        f"* Tempo per la ricerca della soluzione: {result.execution_time:.10e} sec\n"
+        f"* Memoria griglia: {to_kbs(result.mem_grid)} kbs\n"
+        f"* Memoria euristica: {to_kbs(result.mem_heuristic)} kbs\n"
+        f"* Memoria closed: {to_kbs(result.mem_closed)} kbs\n"
+        f"* Memoria open: {to_kbs(result.mem_open)} kbs\n"
+        f"* Memoria path: {to_kbs(result.mem_path)} kbs\n"
     )
+
     return performance_string
+
+
+def to_kbs(mem):
+    return round(mem / 1024)
 
 
 def generate_name(problem):

@@ -3,6 +3,7 @@ import csv
 import cProfile
 import os
 import pickle
+import signal
 import time
 import random
 
@@ -10,7 +11,7 @@ from agents import Agents
 from gridGraph import GridGraph
 from heuristic import *
 from plotGraph import graphPlotter
-from problem import Problem
+from problem import Problem, ProblemFactory
 
 from search import ReachGoal
 from state import State
@@ -31,29 +32,14 @@ HEURISTIC_CLASSES = {
 
 args = cli.get_args()
 
-if args.command == "gen":
-    os.environ['SEED'] = str(args.seed) if args.seed is not None else 'None'
-else:
-    os.environ['SEED'] = random.randint(0, 1000)
-
 def generate_problems(configurations):
     problems = []
     for config in configurations:
-
-        if args.command == "gen":
-            if not args.seed:
-                os.environ['SEED'] = str(random.randint(0, 1000))
-            else:
-                os.environ['SEED'] = str(args.seed)
-        else:
-            os.environ['SEED'] = str(random.randint(0, 1000))
-
-
         try:
-            problem, problem_time= generate_instance(config)
+            problem = ProblemFactory.create_problem(config)
             if args.save:
                 repository.save_problem(problem)
-            problems.append((problem, problem_time))
+            problems.append(problem)
         except Exception as e:
             print(f"Errore durante la generazione del problema: {e}")
     return problems
@@ -62,19 +48,17 @@ def generate_problems(configurations):
 def solve_problems(problems, heuristic_type, use_variant=False):
     for problem, problem_time in problems:
         try:
-            heuristic, heuristic_time = generate_heuristic(problem, heuristic_type)
+            heuristic, heuristic_time = HeuristicFactory.create_heuristic(problem, heuristic_type,HEURISTIC_CLASSES)
             solver = ReachGoal(problem, heuristic, use_variant)
-            _, search_time = solver.search()
-            repository.save_report(
-                problem, solver, heuristic, problem_time, search_time, heuristic_time
-            )
-            visualizer = Animation(problem.grid, problem.agent_paths, solver.path)
+            result = solver.search()
+            repository.save_report(problem,heuristic,result)
+            visualizer = Animation(problem.grid, problem.agent_paths, result.path)
             visualizer.show()
 
             if args.command == "gen" and args.csv_output:
                 file_name = os.path.basename(args.file)
                 repository.save_report_csv(
-                    problem, solver, heuristic, problem_time, search_time, heuristic_time,file_name
+                    problem, result, heuristic,file_name
                 )
 
         except Exception as e:
@@ -100,12 +84,6 @@ def main():
 
     except Exception as e:
         print(f"Si è verificato un errore: {e}")
-
-def generate_instance(config):
-    start_time = time.perf_counter()
-    problem_instance = Problem(**config)
-    elapsed_time = time.perf_counter() - start_time
-    return problem_instance, elapsed_time
 
 
 def generate_heuristic(problem: Problem, heuristic_type):

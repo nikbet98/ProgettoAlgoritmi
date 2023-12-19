@@ -50,14 +50,6 @@ __parser_gen.add_argument(
 )
 
 __parser_gen.add_argument(
-    "-seed",
-    "--seed",
-    type=int,
-    help="Seed per la generazione del problema.",
-    default=None,
-)
-
-__parser_gen.add_argument(
     "-s",
     "--save",
     type=bool,

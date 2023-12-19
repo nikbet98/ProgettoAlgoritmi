@@ -1,9 +1,18 @@
 from typing import List, Tuple, Optional
+import time
 import random
 import os
 from gridGraph import GridGraph
 from agents import Agents
 
+# Factory Pattern
+class ProblemFactory:
+    @staticmethod
+    def create_problem(config: dict):
+        start_time = time.process_time()
+        problem_instance = Problem(**config)
+        problem_instance.execution_time = time.process_time() - start_time
+        return problem_instance
 
 class Problem:
     def __init__(
@@ -23,8 +32,6 @@ class Problem:
         empty_nodes = self.grid.get_free_nodes()
 
         self.agents = Agents(maximum_time, num_agents)
-
-        random.seed(os.getenv("SEED"))
         init, goal = random.sample(empty_nodes, 2)
 
         self.cols = cols
@@ -36,6 +43,7 @@ class Problem:
         self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
 
         self.agent_paths = self.agents.generate_paths(self.grid, empty_nodes)
+        self.execution_time = None
 
     def _get_parameters(self) -> List[Tuple[str, float]]:
         parameters = [

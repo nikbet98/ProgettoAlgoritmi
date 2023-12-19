@@ -12,8 +12,10 @@ class Agents:
         self.paths: List[List[int]] = []
         self.num_paths = num_paths
 
+        # Genera i percorsi nel momento in cui viene creata un'istanza della classe
+        self.paths = None
+
     def generate_paths(self, grid: GridGraph, available_nodes: List[int]) -> List[List[int]]:
-        random.seed(os.getenv("SEED"))
         random.shuffle(available_nodes)
         cols = grid.get_dim()[1]
 
@@ -31,7 +33,6 @@ class Agents:
     def _generate_single_path(self, grid: GridGraph, available_nodes: List[int], cols: int) -> Optional[List[int]]:
         current_node = available_nodes.pop()
         path = [current_node]
-        random.seed(os.getenv("SEED"))
         agent_path_duration = random.randint(1, self.max_time)
 
         for time in range(agent_path_duration):

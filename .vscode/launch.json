@@ -27,7 +27,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/pf4ea",
-            "args": ["man"],
+            "args": ["gen","-f","10x10_08_02_3_20.csv"],    
         }
     ]
 }
