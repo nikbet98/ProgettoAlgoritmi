@@ -9,7 +9,7 @@ from costants import *
 
 class HeuristicFactory:
     @staticmethod
-    def create_heuristic(heuristic_type, problem,HEURISTIC_CLASSES):
+    def create_heuristic(problem,heuristic_type,HEURISTIC_CLASSES):
         if heuristic_type not in HEURISTIC_CLASSES:
             raise ValueError(f"Unsupported heuristic type: {heuristic_type}")
 

@@ -12,8 +12,6 @@ class Agents:
         self.paths: List[List[int]] = []
         self.num_paths = num_paths
 
-        # Genera i percorsi nel momento in cui viene creata un'istanza della classe
-        self.paths = None
 
     def generate_paths(self, grid: GridGraph, available_nodes: List[int]) -> List[List[int]]:
         random.shuffle(available_nodes)

@@ -8,7 +8,7 @@ from agents import Agents
 # Factory Pattern
 class ProblemFactory:
     @staticmethod
-    def create_problem(config: dict):
+    def create_problem(config):
         start_time = time.process_time()
         problem_instance = Problem(**config)
         problem_instance.execution_time = time.process_time() - start_time

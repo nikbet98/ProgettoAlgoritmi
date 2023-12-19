@@ -17,8 +17,9 @@ from search import ReachGoal
 from state import State
 from utils import get_path_cost
 from visualize import Animation
-from memory_profiler import memory_usage
 from input_handler import InputHandler
+
+import traceback
 import repository
 import cli
 
@@ -32,6 +33,7 @@ HEURISTIC_CLASSES = {
 
 args = cli.get_args()
 
+
 def generate_problems(configurations):
     problems = []
     for config in configurations:
@@ -42,13 +44,15 @@ def generate_problems(configurations):
             problems.append(problem)
         except Exception as e:
             print(f"Errore durante la generazione del problema: {e}")
+            print(f"Tipo di errore: {type(e).__name__}")
+            print(f"Traceback: {traceback.format_exc()}")
     return problems
 
 
 def solve_problems(problems, heuristic_type, use_variant=False):
-    for problem, problem_time in problems:
+    for problem in problems:
         try:
-            heuristic, heuristic_time = HeuristicFactory.create_heuristic(problem, heuristic_type,HEURISTIC_CLASSES)
+            heuristic  = HeuristicFactory.create_heuristic(problem, heuristic_type,HEURISTIC_CLASSES)
             solver = ReachGoal(problem, heuristic, use_variant)
             result = solver.search()
             repository.save_report(problem,heuristic,result)
@@ -57,12 +61,11 @@ def solve_problems(problems, heuristic_type, use_variant=False):
 
             if args.command == "gen" and args.csv_output:
                 file_name = os.path.basename(args.file)
-                repository.save_report_csv(
-                    problem, result, heuristic,file_name
-                )
-
+                repository.save_report_csv(problem,heuristic,result,file_name)
         except Exception as e:
             print(f"Errore durante la risoluzione del problema: {e}")
+            print(f"Tipo di errore: {type(e).__name__}")
+            print(f"Traceback: {traceback.format_exc()}")
 
 
 def main():
@@ -84,18 +87,9 @@ def main():
 
     except Exception as e:
         print(f"Si è verificato un errore: {e}")
+        print(f"Tipo di errore: {type(e).__name__}")
+        print(f"Traceback: {traceback.format_exc()}")
 
-
-def generate_heuristic(problem: Problem, heuristic_type):
-
-    if heuristic_type not in HEURISTIC_CLASSES:
-        raise ValueError(f"Unsupported heuristic type: {heuristic_type}")
-
-    start_time = time.perf_counter()
-    heuristic = HEURISTIC_CLASSES[heuristic_type](problem.grid, problem.goal)
-    elapsed_time = time.perf_counter() - start_time
-
-    return heuristic, elapsed_time
 
 if __name__ == "__main__":
     main()

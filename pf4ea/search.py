@@ -92,10 +92,9 @@ class ReachGoal:
     def search(self):
         # Assign the function to call to a variable
         search_algorithm = (
-            self._ReachGoal_variant if self.use_variant else self._ReachGoal
+            self._ReachGoal_variant() if self.use_variant else self._ReachGoal()
         )
-        return self._measure_time(search_algorithm)
-
+        return search_algorithm
 
 
     """

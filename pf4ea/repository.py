@@ -1,7 +1,6 @@
 import os
 import csv
 import pickle
-import yaml
 from heuristic import DiagonalDistance, HeuristicRelaxPath
 from utils import get_path_cost
 
@@ -76,14 +75,12 @@ def save_report(problem, heuristic, result):
         file.write("\n<!-- ************************** -->\n")
         file.write(f"{result}")
         file.write("\n<!-- ************************** -->\n")
-        file.write(
-            performance_to_string(problem, heuristic, result)
-        )
+        file.write(performance_to_string(problem, heuristic, result))
 
     print(f"Report salvato correttamente nel file {file_path}.")
 
 
-def save_report_csv(problem, heuristic, result):
+def save_report_csv(problem, heuristic, result, input_file_name):
     input_file_name = (
         input_file_name.replace("input_", "")
         if input_file_name.startswith("input_")
@@ -93,7 +90,7 @@ def save_report_csv(problem, heuristic, result):
     output_file_name = "output_" + input_file_name
     file_path = os.path.join(RESULTS_DIRECTORY, output_file_name)
 
-    fieldnames = [
+    field_names = [
         "rows",
         "cols",
         "traversability_ratio",
@@ -141,7 +138,7 @@ def save_report_csv(problem, heuristic, result):
     }
 
     with open(file_path, "a", encoding="utf-8", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames)
+        writer = csv.DictWriter(file, field_names)
         if file.tell() == 0:
             writer.writeheader()
 
@@ -151,6 +148,10 @@ def save_report_csv(problem, heuristic, result):
 
 
 def performance_to_string(problem, heuristic, result):
+    if result is None:
+        return "Il risultato è None, quindi non è possibile accedere a execution_time"
+
+    
     performance_string = (
         f"## PERFORMANCE\n"
         f"* Tempo per la generazione dell'istanza: {problem.execution_time:.10e} sec\n"
