@@ -1,7 +1,6 @@
 from typing import List, Tuple, Optional
 import time
 import random
-import os
 from gridGraph import GridGraph
 from agents import Agents
 

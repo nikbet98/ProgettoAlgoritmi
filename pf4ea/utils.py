@@ -1,6 +1,6 @@
-import heapq
 from state import State
 from typing import Callable, Any
+import heapq
 
 
 class PriorityQueue:

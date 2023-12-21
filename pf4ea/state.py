@@ -17,7 +17,7 @@ class State:
     def __ne__(self, other: 'State') -> bool:
         return other.node != self.node and other.time != self.time
 
-    def _is_parent_None(self) -> bool:
+    def is_parent_None(self) -> bool:
         return self.parent is None
 
     def _add_parent(self, parent: 'State'):

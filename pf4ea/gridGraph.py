@@ -1,9 +1,7 @@
-from typing import List, Dict, Set, Optional, Tuple
-import os
 import math
 import random
-import sys
-
+from constants import *
+from typing import Dict, List, Optional, Set, Tuple
 # costanti
 WEIGHT_CARDINAL_DIRECTION = 1
 WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)

@@ -1,25 +1,12 @@
-# todo salva le istanza del problema -s da CLI
-import csv
-import cProfile
+# todo specificare nel reachgoal variant che è finito il tempo nel Result
 import os
-import pickle
-import signal
-import time
-import random
+import traceback
 
-from agents import Agents
-from gridGraph import GridGraph
 from heuristic import *
-from plotGraph import graphPlotter
-from problem import Problem, ProblemFactory
-
+from problem import ProblemFactory
 from search import ReachGoal
-from state import State
-from utils import get_path_cost
 from visualize import Animation
 from input_handler import InputHandler
-
-import traceback
 import repository
 import cli
 
@@ -52,16 +39,24 @@ def generate_problems(configurations):
 def solve_problems(problems, heuristic_type, use_variant=False):
     for problem in problems:
         try:
-            heuristic  = HeuristicFactory.create_heuristic(problem, heuristic_type,HEURISTIC_CLASSES)
+            heuristic = HeuristicFactory.create_heuristic(
+                problem, heuristic_type, HEURISTIC_CLASSES)
             solver = ReachGoal(problem, heuristic, use_variant)
             result = solver.search()
-            repository.save_report(problem,heuristic,result)
+            
+
             visualizer = Animation(problem.grid, problem.agent_paths, result.path)
-            visualizer.show()
+
+            if args.report:
+                repository.save_report(problem, heuristic, result,visualizer)
+
+            if args.show:    
+                visualizer.show()
 
             if args.command == "gen" and args.csv_output:
                 file_name = os.path.basename(args.file)
-                repository.save_report_csv(problem,heuristic,result,file_name)
+                repository.save_report_csv(
+                    problem, heuristic, result, file_name)
         except Exception as e:
             print(f"Errore durante la risoluzione del problema: {e}")
             print(f"Tipo di errore: {type(e).__name__}")

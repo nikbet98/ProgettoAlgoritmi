@@ -83,7 +83,7 @@ class Animation:
                     (x_goal-0.5 , y_goal-0.5),
                     1,
                     1,
-                    facecolor=COLORS[3],
+                    facecolor=COLORS[4],
                     edgecolor="black",
                     alpha=0.5,
                 )
@@ -146,7 +146,7 @@ class Animation:
             self.figure,
             self.animate_func,
             init_func=self.init_func,
-            frames=int(self.T + 1) * 10,
+            frames=len(self.robot_path)+1,
             interval=1000,
             blit=True,
             repeat_delay=3000,
@@ -164,10 +164,13 @@ class Animation:
         plt.gca().invert_yaxis()  # Invert y axis
         plt.gca().xaxis.tick_top()  # Move x-axis to the top
 
-    def save(self, file_name, speed):
-        self.anim.save(file_name, "ffmpeg", fps=10 * speed, dpi=200),
+    def save_as_video(self, file_name):
+        self.anim.save(file_name, "ffmpeg", fps=1, dpi=200)
         # savefig_kwargs={"pad_inches": 0, "bbox_inches": "tight"})
-
+    
+    def save_as_image(self, file_name):
+        self.figure.text(0.5, 0.02, "Istante di tempo iniziale: 0", ha='center')
+        self.figure.savefig(file_name, bbox_inches='tight', pad_inches=1)
     def show(self):
         plt.show()
 
@@ -179,11 +182,12 @@ class Animation:
         return self.patches + self.artists
 
     def animate_func(self, i):
+        if i >= len(self.robot_path): self.anim.event_source.stop()
         pos = self.getState(i, self.robot_path)
         p = (pos[0], pos[1])
         self.myRobot.center = p
         self.myRobot_name.set_position(p)
-        self.myRobot.set_facecolor(COLORS[3])
+        self.myRobot.set_facecolor(COLORS[4])
         
 
         for agent_id, path in enumerate(self.paths):
@@ -197,17 +201,17 @@ class Animation:
             agent.set_facecolor(agent.original_face_color)
 
         # check drive-drive collisions
-        objects_array = [agent for _, agent in self.agents.items()] + [self.myRobot]
-        for i in range(0, len(objects_array)):
-            for j in range(i + 1, len(objects_array)):
-                d1 = objects_array[i]
-                d2 = objects_array[j]
-                pos1 = np.array(d1.center)
-                pos2 = np.array(d2.center)
-                if np.linalg.norm(pos1 - pos2) < 0.7:
-                    d1.set_facecolor("red")
-                    d2.set_facecolor("red")
-                    print("COLLISIONE tra oggetti!!! ({}, {})".format(i, j))
+        # objects_array = [agent for _, agent in self.agents.items()] + [self.myRobot]
+        # for i in range(0, len(objects_array)):
+        #     for j in range(i + 1, len(objects_array)):
+        #         d1 = objects_array[i]
+        #         d2 = objects_array[j]
+        #         pos1 = np.array(d1.center)
+        #         pos2 = np.array(d2.center)
+        #         if np.linalg.norm(pos1 - pos2) < 0.7:
+        #             d1.set_facecolor("red")
+        #             d2.set_facecolor("red")
+        #             print("COLLISIONE tra oggetti!!! ({}, {})".format(i, j))
 
         return self.patches + self.artists
     

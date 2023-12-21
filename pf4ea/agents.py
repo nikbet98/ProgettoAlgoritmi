@@ -31,7 +31,10 @@ class Agents:
     def _generate_single_path(self, grid: GridGraph, available_nodes: List[int], cols: int) -> Optional[List[int]]:
         current_node = available_nodes.pop()
         path = [current_node]
-        agent_path_duration = random.randint(1, self.max_time)
+
+        mu = (1 + self.max_time) / 2
+        sigma = self.max_time / 4
+        agent_path_duration = int(random.gauss(mu, sigma))
 
         for time in range(agent_path_duration):
             if not available_nodes:

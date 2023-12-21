@@ -36,6 +36,16 @@ __parser_run.add_argument(
     default=OUTPUT_PATH,
 )
 
+__parser_run.add_argument(
+    "-r",
+    "--report",
+    type=bool,
+    help="Salva il report su file.",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+)
+
+
 # 4. Aggiungo un subparser per il comando "gen"
 __parser_gen = __subparsers.add_parser(
     "gen", help="gen help", formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -50,15 +60,23 @@ __parser_gen.add_argument(
 )
 
 __parser_gen.add_argument(
+    "--show",
+    type=bool,
+    action=argparse.BooleanOptionalAction,
+    help="Mostra la soluzione graficamente.",
+    default=False,
+)
+__parser_gen.add_argument(
     "-s",
     "--save",
     type=bool,
     help="Salva il problema generato su file.",
+    action=argparse.BooleanOptionalAction,
     default=True,
 )
 
 __parser_gen.add_argument(
-    "-m", "--heuristic", type=str, help="Heuristic type.", default="h1"
+    "-m", "--heuristic", type=str, help="Heuristic type."
 )
 __parser_gen.add_argument(
     "-v",
@@ -70,9 +88,19 @@ __parser_gen.add_argument(
 )
 
 __parser_gen.add_argument(
+    "-r",
+    "--report",
+    type=bool,
+    help="Salva il report su file.",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+)
+
+__parser_gen.add_argument(
     "--csv_output",
     type=bool,
     help="Salva i problemi generati e le relative soluzioni su un file di output in formato csv",
+    action=argparse.BooleanOptionalAction,
     default=False,
 )
 
@@ -84,8 +112,27 @@ __parser_man.add_argument(
     "--save",
     type=bool,
     help="Salva il problema generato su file.",
+    action=argparse.BooleanOptionalAction,
     default=False,
 )
+
+__parser_man.add_argument(
+    "--show",
+    type=bool,
+    help="Mostra la soluzione graficamente.",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+)
+
+__parser_man.add_argument(
+    "-r",
+    "--report",
+    type=bool,
+    help="Salva il report su file.",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+)
+
 
 def get_args() -> argparse.Namespace:
     """Ottiene gli argomenti dalla riga di comando.
