@@ -27,6 +27,7 @@ class Result:
     mem_open: float = None
     mem_closed: float = None
     mem_path: float = None
+    error: int = 0
 
     def __post_init__(self):
         self.path_length = len(self.path)
@@ -167,6 +168,7 @@ class ReachGoal:
                     execution_time=self.__execution_time(),
                     mem_grid=sys.getsizeof(self.problem.grid),
                     mem_heuristic=sys.getsizeof(self.heuristic),
+                    error=0,
                 )
 
             for child_state in expand(self.problem, current_state):
@@ -189,7 +191,20 @@ class ReachGoal:
                         elif f_score(child_state) < self.open[child_state]:
                             del self.open[child_state]
                             self.open.add(child_state)
-
+        return Result(
+            path=[self.problem.init],
+            path_cost=math.inf,
+            open=self.open,
+            closed=self.closed,
+            wait= 0,
+            use_variant=self.use_variant,
+            percentage_visited_nodes=self.calculate_visited_nodes(),
+            execution_time=self.__execution_time(),
+            mem_grid=sys.getsizeof(self.problem.grid),
+            mem_heuristic=sys.getsizeof(self.heuristic),
+            error=1,
+        )
+        '''
         return Result(
             path=[self.problem.init],
             path_cost=math.inf,
@@ -202,6 +217,7 @@ class ReachGoal:
             mem_grid=sys.getsizeof(self.problem.grid),
             mem_heuristic=sys.getsizeof(self.heuristic),
         )
+        '''
 
     def _ReachGoal_variant(self):
         predecessors = self.heuristic.predecessors
@@ -222,6 +238,7 @@ class ReachGoal:
                 execution_time=self.__execution_time(),
                 mem_grid=sys.getsizeof(self.problem.grid),
                 mem_heuristic=sys.getsizeof(self.heuristic),
+                error=1,
             )
 
         while self.open:
@@ -230,18 +247,8 @@ class ReachGoal:
             self.closed.add(current_state)
 
             if current_state.time > self.problem.maximum_time:
-                return Result(
-                    path=[init.node],
-                    path_cost=math.inf,
-                    open=self.open,
-                    closed=self.closed,
-                    wait= 0,
-                    use_variant=self.use_variant,
-                    percentage_visited_nodes=self.calculate_visited_nodes(),
-                    execution_time=self.__execution_time(),
-                    mem_grid=sys.getsizeof(self.problem.grid),
-                    mem_heuristic=sys.getsizeof(self.heuristic),
-                )
+                # If the current state is at the limit of the maximum time, it just get discarded
+                continue
 
             if self.problem.is_goal(current_state.node):  # current_state[1] is the node
                 self.path, self.wait = self.ReconstructPath(init, current_state)
@@ -312,6 +319,7 @@ class ReachGoal:
             execution_time=self.__execution_time(),
             mem_grid=sys.getsizeof(self.problem.grid),
             mem_heuristic=sys.getsizeof(self.heuristic),
+            error=1,
         )
 
     def calculate_visited_nodes(self):

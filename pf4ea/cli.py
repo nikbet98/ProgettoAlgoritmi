@@ -76,7 +76,11 @@ __parser_gen.add_argument(
 )
 
 __parser_gen.add_argument(
-    "-m", "--heuristic", type=str, help="Heuristic type."
+    "-m", 
+    "--heuristic",
+    type=str, 
+    help="Heuristic type.",
+    default = "h1"
 )
 __parser_gen.add_argument(
     "-v",
