@@ -341,8 +341,7 @@ class ReachGoal:
 
     def calculate_visited_nodes(self):
         return (
-            len(self.closed)
+            len(calculate_unique_visited(self.closed))
             / (self.problem.grid.get_size() - self.problem.grid.num_obstacles)
             * 100
         )
-    
