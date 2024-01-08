@@ -83,10 +83,10 @@ def save_report(problem, heuristic, result,visualizer):
     file_name = f"{generate_name(problem)}_{get_h_type(heuristic)}.md"
     file_path = os.path.join(RESULTS_DIRECTORY, file_name)
     file_name_img = file_name.replace(".md",f"_{timestamp}.png")
-    file_name_video = file_name.replace(".md",f"_{timestamp}.mp4")
+    # file_name_video = file_name.replace(".md",f"_{timestamp}.mp4")
     
-    visualizer.save_as_image(os.path.join(MEDIA_DIRECTORY, file_name_img))
-    visualizer.save_as_video(os.path.join(MEDIA_DIRECTORY, file_name_video))
+    # visualizer.save_as_image(os.path.join(MEDIA_DIRECTORY, file_name_img))
+    # visualizer.save_as_video(os.path.join(MEDIA_DIRECTORY, file_name_video))
 
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{problem}\n")
@@ -95,7 +95,7 @@ def save_report(problem, heuristic, result,visualizer):
         file.write("\n<!-- ************************** -->\n")
         file.write(performance_to_string(problem, heuristic, result))
         file.write(f"![immagine](./media/{file_name_img})\n")
-        file.write(f"[Link al video](./media/{file_name_video})\n")
+        # file.write(f"[Link al video](./media/{file_name_video})\n")
 
 
     print(f"Report salvato correttamente nel file {file_path}.")
