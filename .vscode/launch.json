@@ -20,6 +20,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         
 
         {
@@ -27,7 +28,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/pf4ea",
-            "args": ["gen","-f","exp_0.csv","-v","--heuristic","h5"]   
+            "args": ["gen","-f","test.csv","-r"]
         }
     ]
 }

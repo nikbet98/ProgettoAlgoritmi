@@ -61,11 +61,13 @@ class DiagonalDistance(Heuristic):
 
 
 class ChebyshevDistance(Heuristic):
-    def __init__(self, grid, goal,D):
+    def __init__(self, grid, goal):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
         self.x_goal, self.y_goal = get_coordinates(self.goal, self.col)
-        self.D = D
+        self.D = WEIGHT_CARDINAL_DIRECTION
+        self.D2 = WEIGHT_DIAGONAL_DIRECTION
+
     
     def estimate(self, init):
         """
@@ -84,11 +86,11 @@ class ChebyshevDistance(Heuristic):
         return self.estimate(node)
     
 class ManhattanDistance(Heuristic):
-    def __init__(self, grid, goal,D):
+    def __init__(self, grid, goal):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
         self.x_goal, self.y_goal = get_coordinates(self.goal, self.col)
-        self.D = D
+        self.D = WEIGHT_CARDINAL_DIRECTION
     
     def estimate(self, init):
         """
@@ -111,10 +113,10 @@ class ManhattanDistance(Heuristic):
         return self.estimate(init)
 
 class EuclideanDistance(Heuristic):
-    def __init__(self, grid, goal,D):
+    def __init__(self, grid, goal):
         super().__init__(grid, goal)
         self.col = self.grid.get_dim()[1]
-        self.D = D
+        self.D = WEIGHT_CARDINAL_DIRECTION
         self.x_goal,self.y_goal = get_coordinates(self.goal, self.col)
     
     def estimate(self, init):
