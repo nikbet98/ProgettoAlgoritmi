@@ -28,7 +28,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/pf4ea",
-            "args": ["gen","-f","test.csv","-r"]
+            "args": ["gen","-f","exp_0.csv","-v","--heuristic","h5","--report"],
         }
     ]
 }

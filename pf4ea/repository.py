@@ -2,6 +2,7 @@ import datetime
 import os
 import csv
 import pickle
+from constants import SearchFailureCodes
 from utils import get_path_cost
 
 # Ottengo il percorso della directory padre
@@ -83,10 +84,10 @@ def save_report(problem, heuristic, result,visualizer):
     file_name = f"{generate_name(problem)}_{get_h_type(heuristic)}.md"
     file_path = os.path.join(RESULTS_DIRECTORY, file_name)
     file_name_img = file_name.replace(".md",f"_{timestamp}.png")
-    # file_name_video = file_name.replace(".md",f"_{timestamp}.mp4")
+    file_name_video = file_name.replace(".md",f"_{timestamp}.mp4")
     
-    # visualizer.save_as_image(os.path.join(MEDIA_DIRECTORY, file_name_img))
-    # visualizer.save_as_video(os.path.join(MEDIA_DIRECTORY, file_name_video))
+    visualizer.save_as_image(os.path.join(MEDIA_DIRECTORY, file_name_img))
+    visualizer.save_as_video(os.path.join(MEDIA_DIRECTORY, file_name_video))
 
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{problem}\n")
@@ -94,7 +95,7 @@ def save_report(problem, heuristic, result,visualizer):
         file.write(f"{result}")
         file.write("\n<!-- ************************** -->\n")
         file.write(performance_to_string(problem, heuristic, result))
-        file.write(f"![immagine](./media/{file_name_img})\n")
+        file.write(f"\n![immagine](./media/{file_name_img})\n")
         # file.write(f"[Link al video](./media/{file_name_video})\n")
 
 
@@ -111,85 +112,44 @@ def save_report_csv(problem, heuristic, result, input_file_name):
     output_file_name = "output_" + input_file_name
     file_path = os.path.join(OUTPUT_CSV, output_file_name)
 
-    field_names = [
-        "rows",
-        "cols",
-        "traversability_ratio",
-        "obstacle_agglomeration_ratio",
-        "num_agents",
-        "maximum_time",
-        "init",
-        "goal",
-        "h_type",
-        "path_length",
-        "path_cost",
-        "tot_states",
-        "percentage_visited_nodes",
-        "unique_node_visited",
-        "wait",
-        "problem_time",
-        "heuristic_time",
-        "search_time",
-        "mem_grid",
-        "mem_heuristic",
-        "mem_open",
-        "mem_closed",
-        "mem_path",
-    ]
-    if result.error == 0:
-        report_data = {
-            "rows": problem.grid.rows,
-            "cols": problem.grid.cols,
-            "traversability_ratio": problem.grid.traversability_ratio,
-            "obstacle_agglomeration_ratio": problem.grid.obstacle_agglomeration_ratio,
-            "num_agents": problem.num_agents,
-            "maximum_time": problem.maximum_time,
-            "init": problem.init,
-            "goal": problem.goal,
-            "h_type": get_h_type(heuristic),
-            "path_length": len(result.path),
-            "path_cost": get_path_cost(result.path, problem.grid),
-            "tot_states": len(result.closed) + len(result.open),
-            "percentage_visited_nodes": result.percentage_visited_nodes,
-            "unique_node_visited": result.num_unique_node_visited,
-            "wait": result.wait,
-            "problem_time": problem.execution_time,
-            "heuristic_time": heuristic.execution_time,
-            "search_time": result.execution_time,
-            "mem_grid": to_kbs(result.mem_grid),
-            "mem_heuristic": to_kbs(result.mem_heuristic),
-            "mem_open": to_kbs(result.mem_open),
-            "mem_closed": to_kbs(result.mem_closed),
-            "mem_path": to_kbs(result.mem_path),
-        }
-    else:
-        report_data = {
-            "rows": None,
-            "cols": None,
-            "traversability_ratio": None,
-            "obstacle_agglomeration_ratio": None,
-            "num_agents": None,
-            "maximum_time": None,
-            "init": None,
-            "goal": None,
-            "h_type": None,
-            "path_length": None,
-            "path_cost": None,
-            "tot_states": None,
-            "percentage_visited_nodes": None,
-            "unique_node_visited": None,
-            "wait": None,
-            "problem_time": None,
-            "heuristic_time": None,
-            "search_time": None,
-            "mem_grid": None,
-            "mem_heuristic": None,
-            "mem_open": None,
-            "mem_closed": None,
-            "mem_path": None,
-        }
-        
+    report_data = {
+        "rows": lambda: problem.grid.rows,
+        "cols": lambda: problem.grid.cols,
+        "traversability_ratio": lambda: problem.grid.traversability_ratio,
+        "obstacle_agglomeration_ratio": lambda: problem.grid.obstacle_agglomeration_ratio,
+        "num_agents": lambda: problem.num_agents,
+        "maximum_time": lambda: problem.maximum_time,
+        "init": lambda: problem.init,
+        "goal": lambda: problem.goal,
+        "h_type": lambda: get_h_type(heuristic),
+        "path_length": lambda: len(result.path),
+        "path_cost": lambda: get_path_cost(result.path, problem.grid),
+        "tot_states": lambda: len(result.closed) + len(result.open),
+        "percentage_visited_nodes": lambda: result.percentage_visited_nodes,
+        "unique_node_visited": lambda: result.num_unique_node_visited,
+        "wait": lambda: result.wait,
+        "problem_time": lambda: problem.execution_time,
+        "heuristic_time": lambda: heuristic.execution_time,
+        "search_time": lambda: result.execution_time,
+        "mem_grid": lambda: to_kbs(result.mem_grid),
+        "mem_heuristic": lambda: to_kbs(result.mem_heuristic),
+        "mem_open": lambda: to_kbs(result.mem_open),
+        "mem_closed": lambda: to_kbs(result.mem_closed),
+        "mem_path": lambda: to_kbs(result.mem_path),
+    }
 
+    if result.failure_code == SearchFailureCodes.NO_FAILURE:
+        report_data = {key: func() for key, func in report_data.items()}
+    else:
+        for key in report_data.keys():
+            report_data[key] = None
+
+
+    if result.failure_code != SearchFailureCodes.NO_FAILURE:
+        for key in report_data.keys():
+            report_data[key] = None
+
+    field_names = list(report_data.keys())
     with open(file_path, "a", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(file, field_names)
         if file.tell() == 0:
@@ -201,26 +161,25 @@ def save_report_csv(problem, heuristic, result, input_file_name):
 
 
 def performance_to_string(problem, heuristic, result):
-    if result is None:
-        return "Il risultato è None, quindi non è possibile accedere a execution_time"
+    if result.failure_code == SearchFailureCodes.NO_FAILURE:
+        return (
+            f"## PERFORMANCE\n"
+            f"* Tempo per la generazione dell'istanza: {problem.execution_time:.10e} sec\n"
+            f"* Tempo per la generazione dell'euristica: {heuristic.execution_time:.10e} sec\n"
+            f"* Tempo per la ricerca della soluzione: {result.execution_time:.10e} sec\n"
+            f"* Memoria griglia: {to_kbs(result.mem_grid)} kbs\n"
+            f"* Memoria euristica: {to_kbs(result.mem_heuristic)} kbs\n"
+            f"* Memoria closed: {to_kbs(result.mem_closed)} kbs\n"
+            f"* Memoria open: {to_kbs(result.mem_open)} kbs\n"
+            f"* Memoria path: {to_kbs(result.mem_path)} kbs\n"
+        )
+    return "Il risultato è None, quindi non è possibile accedere a execution_time"
 
-    
-    performance_string = (
-        f"## PERFORMANCE\n"
-        f"* Tempo per la generazione dell'istanza: {problem.execution_time:.10e} sec\n"
-        f"* Tempo per la generazione dell'euristica: {heuristic.execution_time:.10e} sec\n"
-        f"* Tempo per la ricerca della soluzione: {result.execution_time:.10e} sec\n"
-        f"* Memoria griglia: {to_kbs(result.mem_grid)} kbs\n"
-        f"* Memoria euristica: {to_kbs(result.mem_heuristic)} kbs\n"
-        f"* Memoria closed: {to_kbs(result.mem_closed)} kbs\n"
-        f"* Memoria open: {to_kbs(result.mem_open)} kbs\n"
-        f"* Memoria path: {to_kbs(result.mem_path)} kbs\n"
-    )
-
-    return performance_string
 
 
 def to_kbs(mem):
+    if mem is None:
+        return None
     return mem / 1024
 
 

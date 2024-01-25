@@ -183,7 +183,7 @@ def get_coordinates(node: int, col: int) -> Tuple[int, int]:
     return x_node, y_node
 
 # Funzione per vedere se l'errore è stato causato dal tempo non sufficiente
-def check_error_time(max_time, closed_list, problem):
+def is_time_exceeded(max_time, closed_list, problem):
     unique_visited = calculate_unique_visited(closed_list)
     for state in closed_list:
         # prendo in considerazione solo gli stati al limite del tempo

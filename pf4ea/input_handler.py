@@ -1,5 +1,10 @@
-
-from heuristic import ChebyshevDistance, DiagonalDistance, EuclideanDistance, HeuristicRelaxPath, ManhattanDistance
+from heuristic import (
+    ChebyshevDistance,
+    DiagonalDistance,
+    EuclideanDistance,
+    HeuristicRelaxPath,
+    ManhattanDistance,
+)
 
 
 HEURISTIC_CLASSES = {
@@ -9,6 +14,7 @@ HEURISTIC_CLASSES = {
     "h4": EuclideanDistance,
     "h5": HeuristicRelaxPath,
 }
+
 
 class InputHandler:
     def __init__(self):
@@ -93,10 +99,16 @@ class InputHandler:
         return config
 
     def get_search_algorithm(self):
-        search_algorithms = ['Reach Goal', 'Reach Goal variante']
-        numbered_options = [f"{i+1}. {option}" for i, option in enumerate(search_algorithms)]
+        search_algorithms = ["Reach Goal", "Reach Goal variante"]
+        numbered_options = [
+            f"{i+1}. {option}" for i, option in enumerate(search_algorithms)
+        ]
         print("\n".join(numbered_options))
-        choice = self.get_input("Scegli un algoritmo di ricerca: ", int, lambda x: 1 <= x <= len(numbered_options))
+        choice = self.get_input(
+            "Scegli un algoritmo di ricerca: ",
+            int,
+            lambda x: 1 <= x <= len(numbered_options),
+        )
         return choice == 2
 
     def get_heuristic_type(self, use_variant):
@@ -105,7 +117,11 @@ class InputHandler:
             print("La variante di Reach Goal l'euristica del percorso rilassato")
             return heuristic_types[4]
 
-        numbered_options = [f"{i+1}. {option}" for i, option in enumerate(heuristic_types[:4])]
+        numbered_options = [
+            f"{i+1}. {option}" for i, option in enumerate(heuristic_types[:4])
+        ]
         print("\n".join(numbered_options))
-        choice = self.get_input("Scegli un'euristica: ", int, lambda x: 1 <= x <= len(numbered_options))
+        choice = self.get_input(
+            "Scegli un'euristica: ", int, lambda x: 1 <= x <= len(numbered_options)
+        )
         return heuristic_types[choice - 1]

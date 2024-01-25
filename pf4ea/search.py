@@ -1,101 +1,17 @@
 from collections import deque
-from dataclasses import dataclass
-import math
 import sys
 import time
-from typing import List, Optional
+from result import Result, ResultFactory
 from state import State
-from utils import PriorityQueue, expand, is_free_collision, is_path_free, check_error_time, calculate_unique_visited
-from gridGraph import GridGraph
+from utils import (
+    PriorityQueue,
+    expand,
+    is_free_collision,
+    is_path_free,
+    calculate_unique_visited,
+)
 
-NOT_ENOUGH_TIME = "tempo non sufficiente"
-NO_SOL_ERROR = "non esiste un soluzione"
-
-@dataclass
-class Result:
-    path: Optional[List[int]]
-    path_cost: Optional[float]
-    open: PriorityQueue
-    closed: set
-    wait: int
-    use_variant: bool
-    execution_time: float
-    percentage_visited_nodes: float
-    num_unique_node_visited: Optional[int] = None
-    path_length: int = None
-    total_states: int = None
-    mem_grid: float = None
-    mem_heuristic: float = None
-    mem_open: float = None
-    mem_closed: float = None
-    mem_path: float = None
-    error: int = 0
-
-    def __post_init__(self):
-        self.path_length = len(self.path)
-        self.num_unique_node_visited = self.calculate_num_unique_node_visited()
-        self.total_states = len(self.open) + len(self.closed)
-        self.mem_open = sys.getsizeof(self.open)
-        self.mem_closed = sys.getsizeof(self.closed)
-        self.mem_path = sys.getsizeof(self.path)
-
-    def __str__(self):
-        if (
-            self.path is None
-            or self.open is None
-            or self.closed is None
-            or self.wait is None
-        ):
-            return "La ricerca non è stata ancora eseguita."
-        else:
-            # Convert self.closed to a list and sort it by time
-            # closed_sorted = sorted(list(self.closed), key=lambda state: state.time)
-            # closed_str = [
-            #     f"<{str(state)}, {self.f_score(state):.2f}>" for state in closed_sorted
-            # ]
-            if self.error == 1:
-                # errore soluzione non esistente
-                header = (
-                    f"## RISULTATO DELLA RICERCA: SOLUZIONE NON TROVATA\n"
-                    f"  * **Percorso trovato:** {NO_SOL_ERROR}\n"
-                    f"  * **Lunghezza del percorso trovato:** INF\n"
-                    f"  * **Costo del percorso:** INF\n"
-                )
-            elif self.error == 2:
-                # Errore tempo non sufficiente
-                header = (
-                    f"## RISULTATO DELLA RICERCA: SOLUZIONE NON TROVATA\n"
-                    f"  * **Percorso trovato:** {NOT_ENOUGH_TIME}\n"
-                    f"  * **Lunghezza del percorso trovato:** INF\n"
-                    f"  * **Costo del percorso:** INF\n"
-                )
-            else:
-                header = (
-                    f"## RISULTATO DELLA RICERCA: SOLUZIONE TROVATA\n"
-                    f"  * **Percorso trovato:** {self.path}\n"
-                    f"  * **Lunghezza del percorso trovato:** {self.path_length}\n"
-                    f"  * **Costo del percorso:** {self.path_cost: .2f}\n"
-                )
-                
-            return (
-                header +
-                # f"  * **Stati nella lista self.open:** {self.open}\n"
-                # f"  * **Stati nella lista Closed:** {closed_str}\n"
-                f"  * **Totale stati generati:** {self.total_states}\n"
-                f"  * **Numero azioni Wait:** {self.wait}\n"
-                f" **Percentuale di griglia visitata:** {self.percentage_visited_nodes:.2f}\n"
-                f" **Nodi unici visitati:** {self.num_unique_node_visited}\n"
-            )
-
-    def calculate_num_unique_node_visited(self):
-        if len(self.closed) == 0:
-            return 0
-        unique = calculate_unique_visited(self.closed)
-        return len(unique)
-    
-
-
-class ReachGoal:
+class PathFinder:
     def __init__(self, problem, heuristic, use_variant=False):
         self.problem = problem
         self.heuristic = heuristic
@@ -112,7 +28,6 @@ class ReachGoal:
         return time.process_time() - self.__start_time
 
     def search(self):
-        # Assign the function to call to a variable
         search_algorithm = (
             self._ReachGoal_variant() if self.use_variant else self._ReachGoal()
         )
@@ -176,19 +91,20 @@ class ReachGoal:
             if self.problem.is_goal(current_state.node):  # current_state[1] is the node
                 self.path, self.wait = self.ReconstructPath(init, current_state)
                 self.path_cost = current_state.path_cost
-                return Result(
-                    path=self.path,
-                    path_cost=self.path_cost,
-                    open=self.open,
-                    closed=self.closed,
-                    wait=self.wait,
-                    use_variant=self.use_variant,
-                    percentage_visited_nodes=self.calculate_visited_nodes(),
-                    execution_time=self.__execution_time(),
-                    mem_grid=sys.getsizeof(self.problem.grid),
-                    mem_heuristic=sys.getsizeof(self.heuristic),
-                    error=0,
-                )
+
+                return ResultFactory.create_result(self,self.__execution_time)
+                # return Result(
+                #     path=self.path,
+                #     path_cost=self.path_cost,
+                #     open=self.open,
+                #     closed=self.closed,
+                #     wait=self.wait,
+                #     use_variant=self.use_variant,
+                #     percentage_visited_nodes=self.calculate_visited_nodes(),
+                #     execution_time=self.__execution_time(),
+                #     mem_grid=sys.getsizeof(self.problem.grid),
+                #     mem_heuristic=sys.getsizeof(self.heuristic),
+                # )
 
             for child_state in expand(self.problem, current_state):
                 if child_state not in self.closed:
@@ -211,25 +127,27 @@ class ReachGoal:
                             del self.open[child_state]
                             self.open.add(child_state)
 
-        result = Result(
-            path=[self.problem.init],
-            path_cost=math.inf,
-            open=self.open,
-            closed=self.closed,
-            wait= 0,
-            use_variant=self.use_variant,
-            percentage_visited_nodes=self.calculate_visited_nodes(),
-            execution_time=self.__execution_time(),
-            mem_grid=sys.getsizeof(self.problem.grid),
-            mem_heuristic=sys.getsizeof(self.heuristic),
-            error=1,
-        )
+        return ResultFactory.create_result(self,self.__execution_time)
+        # result = Result(
+        #     path=[self.problem.init],
+        #     path_cost=math.inf,
+        #     open=self.open,
+        #     closed=self.closed,
+        #     wait=0,
+        #     use_variant=self.use_variant,
+        #     percentage_visited_nodes=self.calculate_visited_nodes(),
+        #     execution_time=self.__execution_time(),
+        #     mem_grid=sys.getsizeof(self.problem.grid),
+        #     mem_heuristic=sys.getsizeof(self.heuristic),
+        #     failure_code=SearchFailureCodes.NO_SOLUTION_FOUND,
+        # )
         # controlla se l'errore è stato causato dal tempo non sufficiente
-        if check_error_time(self.problem.maximum_time,self.closed, self.problem):
-            result.error = 2 # imposta l'errore corretto
+        # if check_error_time(self.problem.maximum_time, self.closed, self.problem):
+        #     result.failure_code = (
+        #         SearchFailureCodes.TIME_EXCEEDED
+        #     )  # imposta l'errore corretto
 
-        return result 
-        
+        # return result
 
     def _ReachGoal_variant(self):
         predecessors = self.heuristic.predecessors
@@ -239,19 +157,21 @@ class ReachGoal:
         self.closed = set()
 
         if predecessors[init.node] is None:
-            return Result(
-                path=[self.problem.init],
-                path_cost=math.inf,
-                open=self.open,
-                closed=self.closed,
-                wait= 0,
-                use_variant=self.use_variant,
-                percentage_visited_nodes=self.calculate_visited_nodes(),
-                execution_time=self.__execution_time(),
-                mem_grid=sys.getsizeof(self.problem.grid),
-                mem_heuristic=sys.getsizeof(self.heuristic),
-                error=1,
-            )
+            return ResultFactory.create_result(self,self.__execution_time)
+        
+            # return Result(
+            #     path=[self.problem.init],
+            #     path_cost=math.inf,
+            #     open=self.open,
+            #     closed=self.closed,
+            #     wait=0,
+            #     use_variant=self.use_variant,
+            #     percentage_visited_nodes=self.calculate_visited_nodes(),
+            #     execution_time=self.__execution_time(),
+            #     mem_grid=sys.getsizeof(self.problem.grid),
+            #     mem_heuristic=sys.getsizeof(self.heuristic),
+            #     failure_code=SearchFailureCodes.NO_SOLUTION_FOUND,
+            # )
 
         while self.open:
             current_state = self.open.pop()
@@ -265,18 +185,20 @@ class ReachGoal:
             if self.problem.is_goal(current_state.node):  # current_state[1] is the node
                 self.path, self.wait = self.ReconstructPath(init, current_state)
                 self.path_cost = current_state.path_cost
-                return Result(
-                    path=self.path,
-                    path_cost=self.path_cost,
-                    open=self.open,
-                    closed=self.closed,
-                    wait=self.wait,
-                    use_variant=self.use_variant,
-                    percentage_visited_nodes=self.calculate_visited_nodes(),
-                    execution_time=self.__execution_time(),
-                    mem_grid=sys.getsizeof(self.problem.grid),
-                    mem_heuristic=sys.getsizeof(self.heuristic),
-                )
+
+                return ResultFactory.create_result(self,self.__execution_time)
+                # return Result(
+                #     path=self.path,
+                #     path_cost=self.path_cost,
+                #     open=self.open,
+                #     closed=self.closed,
+                #     wait=self.wait,
+                #     use_variant=self.use_variant,
+                #     percentage_visited_nodes=self.calculate_visited_nodes(),
+                #     execution_time=self.__execution_time(),
+                #     mem_grid=sys.getsizeof(self.problem.grid),
+                #     mem_heuristic=sys.getsizeof(self.heuristic),
+                # )
 
             current_node = current_state.node
             path_free = is_path_free(self.problem, current_node, time, predecessors)
@@ -320,24 +242,27 @@ class ReachGoal:
                         elif f_score(child_state) < self.open[child_state]:
                             del self.open[child_state]
                             self.open.add(child_state)
-        result = Result(
-            path=[self.problem.init],
-            path_cost=math.inf,
-            open=self.open,
-            closed=self.closed,
-            wait= 0,
-            use_variant=self.use_variant,
-            percentage_visited_nodes=self.calculate_visited_nodes(),
-            execution_time=self.__execution_time(),
-            mem_grid=sys.getsizeof(self.problem.grid),
-            mem_heuristic=sys.getsizeof(self.heuristic),
-            error=1,
-        )
-        # controlla se l'errore è stato causato dal tempo non sufficiente
-        if check_error_time(self.problem.maximum_time,self.closed, self.problem):
-            result.error = 2 # imposta l'errore corretto
-        
-        return result
+
+        return ResultFactory.create_result(self,self.__execution_time)
+
+        # result = Result(
+        #     path=[self.problem.init],
+        #     path_cost=math.inf,
+        #     open=self.open,
+        #     closed=self.closed,
+        #     wait=0,
+        #     use_variant=self.use_variant,
+        #     percentage_visited_nodes=self.calculate_visited_nodes(),
+        #     execution_time=self.__execution_time(),
+        #     mem_grid=sys.getsizeof(self.problem.grid),
+        #     mem_heuristic=sys.getsizeof(self.heuristic),
+        #     failure_code=SearchFailureCodes.NO_SOLUTION_FOUND,
+        # )
+        # # controlla se l'errore è stato causato dal tempo non sufficiente
+        # if check_error_time(self.problem.maximum_time, self.closed, self.problem):
+        #     result.failure_code = SearchFailureCodes.TIME_EXCEEDED
+
+        # return result
 
     def calculate_visited_nodes(self):
         return (

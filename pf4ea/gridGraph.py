@@ -2,17 +2,18 @@ import math
 import random
 from constants import *
 from typing import Dict, List, Optional, Set, Tuple
-# costanti
-WEIGHT_CARDINAL_DIRECTION = 1
-WEIGHT_DIAGONAL_DIRECTION = math.sqrt(2)
-
 
 
 class GridGraph:
     def __init__(self, rows: int, cols: int, traversability_ratio: float, obstacle_agglomeration_ratio: float):
         """
-    Inizializza una griglia di nodi con le dimensioni specificate.
-    """
+        Inizializza una griglia di nodi con le dimensioni specificate.
+        :param rows: Il numero di righe della griglia.
+        :param cols: Il numero di colonne della griglia.
+        :param traversability_ratio: La percentuale di attraversabilità della griglia.
+        :param obstacle_agglomeration_ratio: La percentuale di agglomerazione degli ostacoli nella griglia.
+        """
+
         self.rows = rows
         self.cols = cols
         self.size = rows * cols
@@ -27,15 +28,15 @@ class GridGraph:
 
     def generate_neighbors(self):
         """
-    Genera gli elenchi di adiacenza per ogni nodo nella griglia.
-    """
+        Genera gli elenchi di adiacenza per ogni nodo nella griglia.
+        """
         for current_node in self.nodes:
             self.connect_adjacent_nodes(current_node)
 
     def connect_adjacent_nodes(self, node: int):
         """
-    Connette il nodo specificato ai suoi nodi adiacenti nella griglia.
-    """
+        Connette il nodo specificato ai suoi nodi adiacenti nella griglia.
+        """
         row = (node) // self.cols
         col = (node) % self.cols
 
@@ -64,8 +65,8 @@ class GridGraph:
 
     def generate_obstacles(self):
         """
-    Genera gli ostacoli nella griglia in base alla percentuale di attraversabilità e di agglomerazione degli ostacoli.
-    """
+        Genera gli ostacoli nella griglia in base alla percentuale di attraversabilità e di agglomerazione degli ostacoli.
+        """
         if self.num_obstacles != 0:  # se il numero di ostacoli è nullo non tentare di generare gli ostacoli
             obstacles = self.build_obstacles()
             for node in obstacles:
@@ -76,8 +77,8 @@ class GridGraph:
 
     def build_obstacles(self) -> Set[int]:
         """
-    Genera gli ostacoli nella griglia in base alla percentuale di agglomerazione degli ostacoli.
-    """
+        Genera gli ostacoli nella griglia in base alla percentuale di agglomerazione degli ostacoli.
+        """
         obstacles: Set[int] = set()
         cluster_size = self.calculate_cluster_size()
         num_clusters = self.calculate_num_clusters(cluster_size)
@@ -91,7 +92,8 @@ class GridGraph:
     def calculate_cluster_size(self) -> int:
         if self.obstacle_agglomeration_ratio == 0:
             return 1
-        return round(self.num_obstacles * self.obstacle_agglomeration_ratio)
+        return math.ceil(self.num_obstacles * self.obstacle_agglomeration_ratio)
+        # return round(self.num_obstacles * self.obstacle_agglomeration_ratio)
 
     def calculate_num_clusters(self, cluster_size: int) -> int:
         if cluster_size == 1:
@@ -100,8 +102,8 @@ class GridGraph:
 
     def find_start_node(self, obstacles: Set[int]) -> int:
         """
-    Trova un nodo di partenza per generare un nuovo cluster di ostacoli.
-    """
+        Trova un nodo di partenza per generare un nuovo cluster di ostacoli.
+        """
         available = [node for node in self.nodes if
                      node not in obstacles and self.are_neighbors_obstacle_free(node, obstacles)]
         if not available:
@@ -118,8 +120,8 @@ class GridGraph:
 
     def generate_obstacle_cluster(self, dim_cluster: int, obstacles: Set[int], cluster: List[int]) -> List[int]:
         """
-    Genera un nuovo cluster di ostacoli a partire dal nodo specificato.
-    """
+        Genera un nuovo cluster di ostacoli a partire dal nodo specificato.
+        """
         while len(cluster) < dim_cluster:
             available = []
             for node in cluster[::-1]:
@@ -184,3 +186,7 @@ class GridGraph:
         for node in obstacles:
             string += str(node) + " "
         return string
+    
+if __name__ == "__main__":
+    grid = GridGraph(10, 10, 0.8, 0.5)
+    print(grid)
