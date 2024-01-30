@@ -29,6 +29,7 @@ class ResultFactory:
             "wait": wait,
             "use_variant": search_result.use_variant,
             "percentage_visited_nodes": search_result.calculate_visited_nodes(),
+            "num_unique_node_visited" : len(calculate_unique_visited(search_result.closed)),
             "execution_time": execution_time(),
             "mem_grid": sys.getsizeof(search_result.problem.grid),
             "mem_heuristic": sys.getsizeof(search_result.heuristic),
@@ -57,7 +58,7 @@ class Result:
     use_variant: bool
     execution_time: float
     percentage_visited_nodes: float
-    num_unique_node_visited: Optional[int] = None
+    num_unique_node_visited: Optional[int] 
     path_length: int = None
     total_states: int = None
     mem_grid: float = None

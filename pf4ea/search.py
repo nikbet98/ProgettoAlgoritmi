@@ -208,20 +208,9 @@ class PathFinder:
                     predecessors[current_state.node], self.problem.goal
                 )
                 path_to_current, self.wait = self.ReconstructPath(init, current_state)
-
-                return Result(
-                    path=path_to_current + path_from_current,
-                    path_cost=current_state.path_cost
-                    + self.heuristic.distances[current_state.node],
-                    open=self.open,
-                    closed=self.closed,
-                    wait=self.wait,
-                    use_variant=self.use_variant,
-                    percentage_visited_nodes=self.calculate_visited_nodes(),
-                    execution_time=self.__execution_time(),
-                    mem_grid=sys.getsizeof(self.problem.grid),
-                    mem_heuristic=sys.getsizeof(self.heuristic),
-                )
+                self.path = path_to_current + path_from_current
+                self.path_cost  = current_state.path_cost + self.heuristic.distances[current_state.node]
+                return ResultFactory.create_result(self,self.__execution_time)
 
             for child_state in expand(self.problem, current_state):
                 if child_state not in self.closed:
