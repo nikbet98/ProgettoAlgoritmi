@@ -1,2 +1,1 @@
-# ProgettoAlgoritmi
-Progetto per algoritmi e strutture dati
+## Progetto di Algoritmi e Strutture Dati
