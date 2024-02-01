@@ -115,6 +115,19 @@ def calculate_agent_locations(path: List[int], time: int) -> Tuple[int, int]:
 def is_free_collision(
     agent_paths: List[List[int]], node: int, next_node: int, time: int, cols: int
 ) -> bool:
+    """
+    Verifica se ci sono collisioni tra il percorso degli agenti e il nodo successivo.
+
+    Args:
+        agent_paths (List[List[int]]): Lista dei percorsi degli agenti.
+        node (int): Nodo corrente.
+        next_node (int): Nodo successivo.
+        time (int): Tempo corrente.
+        cols (int): Numero di colonne nella griglia.
+
+    Returns:
+        bool: True se non ci sono collisioni libere, False altrimenti.
+    """
     for path in agent_paths:
         agent_location, agent_next_location = calculate_agent_locations(path, time)
         if check_collision(
@@ -182,6 +195,7 @@ def get_coordinates(node: int, col: int) -> Tuple[int, int]:
     y_node = (node) % col
     return x_node, y_node
 
+
 # Funzione per vedere se l'errore è stato causato dal tempo non sufficiente
 def is_time_exceeded(max_time, closed_list, problem):
     unique_visited = calculate_unique_visited(closed_list)
@@ -195,10 +209,11 @@ def is_time_exceeded(max_time, closed_list, problem):
                     return True
     return False
 
+
 def calculate_unique_visited(closed):
-        nodes = list()
-        for state in closed:
-            node = state.node
-            if node not in nodes:
-                nodes.append(node)
-        return nodes
+    nodes = list()
+    for state in closed:
+        node = state.node
+        if node not in nodes:
+            nodes.append(node)
+    return nodes

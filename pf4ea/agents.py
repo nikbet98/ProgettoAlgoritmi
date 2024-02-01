@@ -1,5 +1,5 @@
 import random
-import os 
+import os
 from typing import List, Optional
 from utils import is_free_collision
 from heuristic import *
@@ -12,8 +12,9 @@ class Agents:
         self.paths: List[List[int]] = []
         self.num_paths = num_paths
 
-
-    def generate_paths(self, grid: GridGraph, available_nodes: List[int]) -> List[List[int]]:
+    def generate_paths(
+        self, grid: GridGraph, available_nodes: List[int]
+    ) -> List[List[int]]:
         random.shuffle(available_nodes)
         cols = grid.get_dim()[1]
 
@@ -28,7 +29,9 @@ class Agents:
 
         return self.paths
 
-    def _generate_single_path(self, grid: GridGraph, available_nodes: List[int], cols: int) -> Optional[List[int]]:
+    def _generate_single_path(
+        self, grid: GridGraph, available_nodes: List[int], cols: int
+    ) -> Optional[List[int]]:
         current_node = available_nodes.pop()
         path = [current_node]
 
@@ -48,12 +51,13 @@ class Agents:
                     path.append(next_node)
                     current_node = next_node
                     break
-                
 
         return path
 
     def __str__(self) -> str:
-        return '\n'.join(str(path) for path in self.paths)
+        return "\n".join(str(path) for path in self.paths)
+
+
 # ------
 # def generate_paths(grid, max_time, num_paths):
 #     paths = []
@@ -88,6 +92,5 @@ class Agents:
 #         )
 
 #         path = ReachGoal(grid, paths, init_state, goal_node, max_time, h)
-        
-#     return path
 
+#     return path
