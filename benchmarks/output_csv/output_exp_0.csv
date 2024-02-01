@@ -1,0 +1,2 @@
+rows,cols,traversability_ratio,obstacle_agglomeration_ratio,num_agents,maximum_time,init,goal,h_type,path_length,path_cost,tot_states,percentage_visited_nodes,unique_node_visited,wait,problem_time,heuristic_time,search_time,mem_grid,mem_heuristic,mem_open,mem_closed,mem_path
+50,50,0.8,0.1,20,60,645,2285,DiagonalDistance,34,37.14213562373095,947,12.15,243,0,0.0,0.0,0.109375,0.046875,0.046875,0.046875,8.2109375,0.3203125

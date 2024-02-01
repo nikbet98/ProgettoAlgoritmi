@@ -76,7 +76,7 @@ def main():
             handler.heuristic_type,
             handler.use_variant,
         ),
-        "run": lambda: solve_problems(repository.load_problem(args.file)),
+        "run": lambda: solve_problems(repository.load_problem(args.file),use_variant=args.variant),
     }
 
     try:

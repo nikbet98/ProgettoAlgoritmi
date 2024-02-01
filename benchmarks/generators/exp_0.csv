@@ -1,0 +1,2 @@
+rows,cols,traversability_ratio,obstacle_agglomeration_ratio,num_agents,maximum_time
+50,50,0.8,0.1,20,60

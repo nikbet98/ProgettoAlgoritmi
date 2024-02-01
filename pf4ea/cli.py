@@ -4,9 +4,9 @@ import os
 
 
 # Definizione dei percorsi come costanti
-INPUT_PATH = os.path.join("benchmarks", "instances", "in.yaml")
-OUTPUT_PATH = os.path.join("benchmarks", "results", "out.yaml")
-GENERATOR_PATH = os.path.join("benchmarks", "instances", "generators.")
+OUTPUT_PATH = os.path.join("benchmarks", "report")
+GENERATOR_PATH = os.path.join("benchmarks", "generators.")
+PROBLEM_PATH = os.path.join("benchmarks", "problems.")
 
 # 1. Creo un oggetto parser
 __parser = argparse.ArgumentParser(
@@ -26,7 +26,7 @@ __parser_run.add_argument(
     "--input",
     type=str,
     help="Input file.",
-    default=INPUT_PATH,
+    default=PROBLEM_PATH,
 )
 __parser_run.add_argument(
     "-o",
@@ -41,6 +41,23 @@ __parser_run.add_argument(
     "--report",
     type=bool,
     help="Salva il report su file.",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+)
+
+__parser_run.add_argument(
+    "-v",
+    "--variant",
+    type=bool,
+    help="Usa la variante di ReachGoal.",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+)
+
+__parser_run.add_argument(
+    "--show",
+    type=bool,
+    help="Mostra la soluzione graficamente.",
     action=argparse.BooleanOptionalAction,
     default=False,
 )
