@@ -108,7 +108,7 @@ __parser_gen.add_argument(
     default=False,
 )
 
-# 3. Aggiungo un subparser per il comando "run"
+# 3. Aggiungo un subparser per il comando "man"
 __parser_man = __subparsers.add_parser(
     "man", help="man help", formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )

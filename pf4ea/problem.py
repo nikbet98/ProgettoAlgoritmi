@@ -43,7 +43,7 @@ class Problem:
         self.traversability_ratio = traversability_ratio
         self.obstacle_agglomeration_ratio = obstacle_agglomeration_ratio
 
-        self.agents.generate_paths(self.grid, empty_nodes)
+        self.agent_paths = self.agents.generate_paths(self.grid, empty_nodes)
         self.execution_time = None
 
     def _get_parameters(self) -> List[Tuple[str, float]]:
